@@ -1,5 +1,6 @@
 # from idlelib import __main__
 # from operator import truediv
+from tkinter import *
 
 BDD = [
 {
@@ -147,3 +148,18 @@ if __name__ == "__main__":
 ## 5.4 Calcular velocidad
 ## 5.5 Atleta mas veloz
 # 6. Salir del programa
+
+#Disenio interfaz grafica
+
+ventana1 = Tk() #Inicializacion de una instancia de ventana1
+ventana1.geometry("500x500") #Configuracion resolucion ventana1
+ventana1.title("Proyecto Final - PCT") #Configuracion titulo ventana1
+ventana1.config(background="purple")
+
+tituloInicio = Label(ventana1, text="Gestor Rendimiento de Atletas", fg="white", bg="purple" , font=("Arial", 20))
+tituloInicio.pack() #Apilacion de titulo en la ventana1
+
+btn1 = Button(ventana1, text="Registrar nuevo atleta", fg="white", bg="purple" , font=("Arial", 14) )
+btn1.pack()
+
+ventana1.mainloop() #Ejecucion bucle principal
