@@ -78,6 +78,32 @@ def eliminar_entrenamientos(indice_atleta):
     BDD[indice_atleta].sesiones = [] # vaciamos/borramos sus sesiones
     return {"Cantida de sesiones eliminadas": cantidad_eliminados} # FALTARIA AGREGAR EL RANGO DE FECHAS
 
+# --- VOLUMEN TOTAL ACUMULADO ---
+def volumen_total():
+    volumenes_por_atleta = []
+    for atleta in BDD:
+        for sesion in atleta["sesiones"]: #
+            vol_total =+ sesion[1] # 1 es la posicion (indice) de los km en la lista sesion. Vamos sumando el km de la sesion seleccionada a lo anterior
+        volumenes_por_atleta.append({"nombre": atleta["nombre"], "volumen_total": vol_total})
+    return volumenes_por_atleta # Devolvemos los volumenes para cada atleta (por nombre)
+
+# --- RECORD DE DISTANCIA --- FALTA AGREGAR SI HAY DOS ATLETAS CON LA MISMA DISTANCIA MAS GRANDE
+def record_distancia(): # Devuelve diccionario con nombre del atleta con la sesion en km mas larga y la fecha de esa sesion
+    sesion_mas_grande = 0 # hacemos que la sesion mas grande sea 0 para comparar con las sesiones de los atletas
+    atleta_con_sesion_mas_grande = ""
+    for atleta in BDD:
+        for sesion in atleta["sesiones"]:
+            if sesion_mas_grande < sesion[1]: # si la sesion es mas grande:
+                sesion_mas_grande = sesion[1] # 1 - cambiamos el valor con el que comparamos
+                atleta_con_sesion_mas_grande = atleta["nombre"] # 2 - asignamos el nombre del atleta ala variable del nombre
+                fecha_sesion_mas_grande = atleta["fecha"] # 3 - Guardamos la fecha de esa sesion
+            if sesion_mas_grande == sesion[1]:
+                True
+    return ({"nombre": atleta_con_sesion_mas_grande, "fecha": fecha_sesion_mas_grande})
+
+
+
+
 if __name__ == "__main__":
     for i in BDD:
         print(i["nombre"])
