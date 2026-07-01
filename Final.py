@@ -1,5 +1,6 @@
 # from idlelib import __main__
 # from operator import truediv
+import tkinter
 from tkinter import *
 
 BDD = [
@@ -208,17 +209,60 @@ if __name__ == "__main__":
 ## 5.5 Atleta mas veloz
 # 6. Salir del programa
 
-#Disenio interfaz grafica
+#GRAFICOS INTERFAZ DE USUARIO
+#CONFIGURACION INTERFAZ PANTALLA PRINCIPAL
 
-ventana1 = Tk() #Inicializacion de una instancia de ventana1
-ventana1.geometry("500x500") #Configuracion resolucion ventana1
-ventana1.title("Proyecto Final - PCT") #Configuracion titulo ventana1
-ventana1.config(background="purple")
+def configEstiloVentanas(ventana, titulo): #Funcion para definir el estilo inicial de todas las ventanas
+    ventana.geometry("500x500")
+    ventana.title("Proyecto Final - PCT")
+    ventana.config(background="purple")
 
-tituloInicio = Label(ventana1, text="Gestor Rendimiento de Atletas", fg="white", bg="purple" , font=("Arial", 20))
-tituloInicio.pack() #Apilacion de titulo en la ventana1
+    if titulo != "": #Si la ventana requiere un titulo, se le agrega el mismo estilo
+        tituloVentana = Label(ventana, text=titulo, fg="white", bg="purple", font=("Arial", 20))
+        tituloVentana.pack(side="top", pady=20)  # Apilacion de titulo de las ventanas
 
-btn1 = Button(ventana1, text="Registrar nuevo atleta", fg="white", bg="purple" , font=("Arial", 14) )
-btn1.pack()
 
-ventana1.mainloop() #Ejecucion bucle principal
+principal = Tk() #Inicializacion de una instancia de ventana1
+configEstiloVentanas(principal, "Gestor Rendimiento de Atletas")
+
+
+# Funcion para ejecutar la ventana de registro de nuevo atleta, sera utilizada en el boton correspondiente
+def abrirVentanaRegistro():
+    ventanaRegistro = Toplevel(principal)
+    configEstiloVentanas(ventanaRegistro, "Registro de nuevo atleta")
+
+    entradaNombre = Entry(ventanaRegistro, width=40) #Campo de entrada para el nombre del nuevo atleta
+
+    def obtenerDatos(): #Funcion para obtener los datos de la entrada (el nombre)
+        nombre = entradaNombre.get()  # Obtengo el texto de la entrada
+        if nombre != "": #Se guardara el nuevo atleta unicamente si el campo no esta vacio
+            registrar_atleta(nombre) #Registro el nuevo atleta utilizando la funcion previamente definida
+            entradaNombre.delete(0, "end") #Borro el contenido de la entrada
+            print("Atleta registrado correctamente") #Eliminar esta y las dos lineas de abajo
+            for i in BDD:
+                print(i["nombre"])
+
+    btnRegistro = Button(ventanaRegistro, text="Registro", command= obtenerDatos)
+
+    entradaNombre.pack(side="top", pady=20)
+    btnRegistro.pack(side="top", pady=20)
+
+def abrirVentanaCargas():
+    ventanaCargas  = Toplevel(principal)
+    configEstiloVentanas(ventanaCargas, "Carga de nueva sesion")
+
+btn1 = Button(principal, text="Registrar nuevo atleta", fg="white", bg="purple" , font=("Arial", 14), command=abrirVentanaRegistro)
+btn2 = Button(principal, text="Cargar nueva sesion entrenamiento", fg="white", bg="purple" , font=("Arial", 14) , command=abrirVentanaCargas)
+btn3 = Button(principal, text="Buscar/Editar sesion entrenamiento", fg="white", bg="purple" , font=("Arial", 14) )
+btn4 = Button(principal, text="Eliminar todas las sesiones de un atleta", fg="white", bg="purple" , font=("Arial", 14) )
+btn5 = Button(principal, text="Visualizacion de reportes y estadisticas", fg="white", bg="purple" , font=("Arial", 14) )
+btn6 = Button(principal, text="Salir del programa", fg="white", bg="purple" , font=("Arial", 14) )
+
+btn1.pack(side="top", pady=10) #Apilacion de botones de la ventana1
+btn2.pack(side="top", pady=10)
+btn3.pack(side="top", pady=10)
+btn4.pack(side="top", pady=10)
+btn5.pack(side="top", pady=10)
+btn6.pack(side="top", pady=10)
+
+principal.mainloop() #Ejecucion bucle principal
