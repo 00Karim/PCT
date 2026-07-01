@@ -80,10 +80,11 @@ def eliminar_entrenamientos(indice_atleta):
 
 # --- VOLUMEN TOTAL ACUMULADO ---
 def volumen_total():
+    vol_total = 0
     volumenes_por_atleta = []
     for atleta in BDD:
         for sesion in atleta["sesiones"]: #
-            vol_total =+ sesion[1] # 1 es la posicion (indice) de los km en la lista sesion. Vamos sumando el km de la sesion seleccionada a lo anterior
+            vol_total += sesion[1] # 1 es la posicion (indice) de los km en la lista sesion. Vamos sumando el km de la sesion seleccionada a lo anterior
         volumenes_por_atleta.append({"nombre": atleta["nombre"], "volumen_total": vol_total})
     return volumenes_por_atleta # Devolvemos los volumenes para cada atleta (por nombre)
 
@@ -115,6 +116,23 @@ def mencion_de_honor(umbral_km):
     return (atletas_por_encima_de_umbral)
 
 # --- CALCULAR VELOCIDAD ---
+def calcular_velocidad(indice_atleta):
+    velocidad_en_kmph = 0
+    velocidad_en_mps = 0
+    numero_sesion = 0
+    registro_sesiones = []
+    for sesion in BDD[indice_atleta]["sesiones"]: # creamos el array con la informacion de la velocidad por cada sesion
+        numero_sesion += 1
+        velocidad_en_kmph = (sesion[1]) * 60 / sesion[2]
+        velocidad_en_mps = (sesion[1] * 1000) / (sesion[2] * 60)
+        registro_sesiones.append({"numero_sesion": numero_sesion, "vel_kmph": velocidad_en_kmph, "vel_mps": velocidad_en_mps})
+    for registro_sesion in registro_sesiones: # calculamos el total de velocidades para despues sacar el promedio
+        velocidad_en_kmph += registro_sesion["vel_kmph"]
+        velocidad_en_mps += registro_sesion["vel_mps"]
+    if numero_sesion != 0: # si no tiene sesiones entonces no hacemos las divisiones asi no nos da error
+        promedio_kmph = velocidad_en_kmph / numero_sesion # sacamos los promedios con la velocidad total y la cantidad de sesiones que tiene el atleta
+        promedio_mps = velocidad_en_mps / numero_sesion
+    return([registro_sesiones, promedio_kmph, promedio_mps])
 
 
 
