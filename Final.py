@@ -87,19 +87,34 @@ def volumen_total():
         volumenes_por_atleta.append({"nombre": atleta["nombre"], "volumen_total": vol_total})
     return volumenes_por_atleta # Devolvemos los volumenes para cada atleta (por nombre)
 
-# --- RECORD DE DISTANCIA --- FALTA AGREGAR SI HAY DOS ATLETAS CON LA MISMA DISTANCIA MAS GRANDE
+# --- RECORD DE DISTANCIA ---
 def record_distancia(): # Devuelve diccionario con nombre del atleta con la sesion en km mas larga y la fecha de esa sesion
     sesion_mas_grande = 0 # hacemos que la sesion mas grande sea 0 para comparar con las sesiones de los atletas
-    atleta_con_sesion_mas_grande = ""
+    atletas_con_sesion_mas_grande = [] # es una lista porque puede haber mas de 1 atleta con esa distancia
     for atleta in BDD:
         for sesion in atleta["sesiones"]:
             if sesion_mas_grande < sesion[1]: # si la sesion es mas grande:
                 sesion_mas_grande = sesion[1] # 1 - cambiamos el valor con el que comparamos
-                atleta_con_sesion_mas_grande = atleta["nombre"] # 2 - asignamos el nombre del atleta ala variable del nombre
-                fecha_sesion_mas_grande = atleta["fecha"] # 3 - Guardamos la fecha de esa sesion
-            if sesion_mas_grande == sesion[1]:
-                True
-    return ({"nombre": atleta_con_sesion_mas_grande, "fecha": fecha_sesion_mas_grande})
+                atletas_con_sesion_mas_grande = [] #vaciamos la lista por si se habian agregado atletas antes
+                atletas_con_sesion_mas_grande.append({"nombre": atleta["nombre"], "fecha": sesion[0]})
+            if sesion_mas_grande == sesion[1]: # si son iguales entonces lo agregamos tambien a la lista sin borrar el otro (si un atleta tiene dos sesiones iguales, se agregan ambas porque tienen fechas distintas)
+                atletas_con_sesion_mas_grande.append({"nombre": atleta["nombre"], "fecha": sesion[0]})
+    return (atletas_con_sesion_mas_grande)
+
+# --- MENCION DE HONOR ---
+def mencion_de_honor(umbral_km):
+    atletas_por_encima_de_umbral = []
+    for atleta in BDD:
+        while True:
+            for sesion in atleta["sesiones"]:
+                if sesion[1] > umbral_km:
+                    atletas_por_encima_de_umbral.append(atleta["nombre"])
+                    break # una vez que lo agregamos salimos del loop y seguimos con el siguiente atleta porque si este atleta
+                        #... tiene mas de una sesion mayor al umbral entonces se lo agregaria dos veces y seria redundante
+            break # se recorrieron todas las sesiones entonces se sale del while loop para seguir con siguiente atleta
+    return (atletas_por_encima_de_umbral)
+
+# --- CALCULAR VELOCIDAD ---
 
 
 
