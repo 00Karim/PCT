@@ -79,6 +79,74 @@ def eliminar_entrenamientos(indice_atleta):
     BDD[indice_atleta].sesiones = [] # vaciamos/borramos sus sesiones
     return {"Cantida de sesiones eliminadas": cantidad_eliminados} # FALTARIA AGREGAR EL RANGO DE FECHAS
 
+# --- VOLUMEN TOTAL ACUMULADO ---
+def volumen_total():
+    vol_total = 0
+    volumenes_por_atleta = []
+    for atleta in BDD:
+        for sesion in atleta["sesiones"]: #
+            vol_total += sesion[1] # 1 es la posicion (indice) de los km en la lista sesion. Vamos sumando el km de la sesion seleccionada a lo anterior
+        volumenes_por_atleta.append({"nombre": atleta["nombre"], "volumen_total": vol_total})
+    return volumenes_por_atleta # Devolvemos los volumenes para cada atleta (por nombre)
+
+# --- RECORD DE DISTANCIA ---
+def record_distancia(): # Devuelve diccionario con nombre del atleta con la sesion en km mas larga y la fecha de esa sesion
+    sesion_mas_grande = 0 # hacemos que la sesion mas grande sea 0 para comparar con las sesiones de los atletas
+    atletas_con_sesion_mas_grande = [] # es una lista porque puede haber mas de 1 atleta con esa distancia
+    for atleta in BDD:
+        for sesion in atleta["sesiones"]:
+            if sesion_mas_grande < sesion[1]: # si la sesion es mas grande:
+                sesion_mas_grande = sesion[1] # 1 - cambiamos el valor con el que comparamos
+                atletas_con_sesion_mas_grande = [] #vaciamos la lista por si se habian agregado atletas antes
+                atletas_con_sesion_mas_grande.append({"nombre": atleta["nombre"], "fecha": sesion[0]})
+            if sesion_mas_grande == sesion[1]: # si son iguales entonces lo agregamos tambien a la lista sin borrar el otro (si un atleta tiene dos sesiones iguales, se agregan ambas porque tienen fechas distintas)
+                atletas_con_sesion_mas_grande.append({"nombre": atleta["nombre"], "fecha": sesion[0]})
+    return (atletas_con_sesion_mas_grande)
+
+# --- MENCION DE HONOR ---
+def mencion_de_honor(umbral_km):
+    atletas_por_encima_de_umbral = []
+    for atleta in BDD:
+        while True:
+            for sesion in atleta["sesiones"]:
+                if sesion[1] > umbral_km:
+                    atletas_por_encima_de_umbral.append(atleta["nombre"])
+                    break # una vez que lo agregamos salimos del loop y seguimos con el siguiente atleta porque si este atleta
+                        #... tiene mas de una sesion mayor al umbral entonces se lo agregaria dos veces y seria redundante
+            break # se recorrieron todas las sesiones entonces se sale del while loop para seguir con siguiente atleta
+    return (atletas_por_encima_de_umbral)
+
+# --- CALCULAR VELOCIDAD ---
+def calcular_velocidad(indice_atleta):
+    velocidad_en_kmph = 0
+    velocidad_en_mps = 0
+    numero_sesion = 0
+    registro_sesiones = []
+    for sesion in BDD[indice_atleta]["sesiones"]: # creamos el array con la informacion de la velocidad por cada sesion
+        numero_sesion += 1
+        velocidad_en_kmph = (sesion[1]) * 60 / sesion[2]
+        velocidad_en_mps = (sesion[1] * 1000) / (sesion[2] * 60)
+        registro_sesiones.append({"numero_sesion": numero_sesion, "vel_kmph": velocidad_en_kmph, "vel_mps": velocidad_en_mps})
+    for registro_sesion in registro_sesiones: # calculamos el total de velocidades para despues sacar el promedio
+        velocidad_en_kmph += registro_sesion["vel_kmph"]
+        velocidad_en_mps += registro_sesion["vel_mps"]
+    if numero_sesion != 0: # si no tiene sesiones entonces no hacemos las divisiones asi no nos da error
+        promedio_kmph = velocidad_en_kmph / numero_sesion # sacamos los promedios con la velocidad total y la cantidad de sesiones que tiene el atleta
+        promedio_mps = velocidad_en_mps / numero_sesion
+    return([registro_sesiones, promedio_kmph, promedio_mps])
+
+# --- CALCULAR ATLETA MAS VELOZ ---
+
+def atletas_que_recorrieron_distancia(): # Devuevle a los atletas que recorrieron la distancia establecida por el usuario en alguna de sus sesiones
+    True
+
+
+def atleta_mas_veloz(distancia_minima):
+    for atleta in BDD:
+
+
+
+
 if __name__ == "__main__":
     for i in BDD:
         print(i["nombre"])
