@@ -135,6 +135,15 @@ def calcular_velocidad(indice_atleta):
         promedio_mps = velocidad_en_mps / numero_sesion
     return([registro_sesiones, promedio_kmph, promedio_mps])
 
+# --- CALCULAR ATLETA MAS VELOZ ---
+
+def atletas_que_recorrieron_distancia(): # Devuevle a los atletas que recorrieron la distancia establecida por el usuario en alguna de sus sesiones
+    True
+
+
+def atleta_mas_veloz(distancia_minima):
+    for atleta in BDD:
+
 
 
 
