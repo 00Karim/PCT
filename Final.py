@@ -36,6 +36,14 @@ BDD = [
             ["18-04-2026", 7.5, 36.0]
         ]
     },
+{
+        "nombre": "Karim Benzema",
+        "sesiones": [
+            ["18-12-2022", 5.0, 25.0],
+            ["11-04-2026", 6.0, 29.5],
+            ["18-04-2026", 7.5, 36.0]
+        ]
+    },
     {
         "nombre": "Lucas Benítez",
         "sesiones": [
@@ -85,8 +93,7 @@ def buscar_por_nombre(nombre):
 
 
 def eliminar_entrenamientos(indice_atleta):
-    cantidad_eliminados = len(BDD[
-                                  indice_atleta].sesiones)  # guardamos el largo de la lista de sesiones del atleta que seria la cantidad de sesiones que se van a borrar
+    cantidad_eliminados = len(BDD[indice_atleta].sesiones)  # guardamos el largo de la lista de sesiones del atleta que seria la cantidad de sesiones que se van a borrar
     BDD[indice_atleta].sesiones = []  # vaciamos/borramos sus sesiones
     return {"Cantida de sesiones eliminadas": cantidad_eliminados}  # FALTARIA AGREGAR EL RANGO DE FECHAS
 
@@ -166,57 +173,6 @@ if __name__ == "__main__":
     for i in BDD:
         print(i["nombre"])
 
-
-# BASE DE DATOS (estructura y elementos) (va a ser un diccionario de atletas):
-#
-#
-#
-#
-#
-
-# FUNCIONES
-#   Carga de registros
-#       registrarAtleta(lista, nombre_atleta) --> cargar nuevo atleta validando que no exista su nombre
-#                                                 previamente
-#
-#       cargarEntrenamiento(lista(lista de los atletas), nombre_atleta, sesion(fecha, distancia, tiempo))
-#
-#
-#
-#   Modificacion de registros
-#       buscarFecha(fecha) -->
-#                         ingresa fecha y en la UI se muestran todos los atletas que tengan entrenamientos
-#                         que coincidan con esa fecha. En la UI el usuario puede ingresar un numero para
-#                         elegir el atleta al que le quiere modificar la fecha, luego se muestra la lista
-#                         de fechas del atleta que coinciden con la ingresada y se elige una. La funcion
-#                         devuelve el indice del atleta y el indice de la fecha.
-
-#       modificarSesion(indice_atleta, indice_entrenamiento, nueva_sesion) -->
-#                         Recibe el indice del atleta, el indice del entrenamiento del atleta con esa fecha y
-#                         el parametro con la nueva sesion
-#
-#   Eliminar entrenamientos de un atleta
-#       eliminarEntrenamientos(lista,nombre_atleta) --> ingresa el nombre del atleta y elimina todos los entrenamientos
-#                                                       almacenados en el mismo. Ademas, devuelve un registro con la
-#                                                       cantidad de entrenamientos eliminados y el rango de fechas
-#
-#   Visualizar reportes y estadisticas
-#       mostrarAtletas() --> Muestra a los atleta en UI con su indice a la izquierda
-#
-#       volumenAcumulado(lista) --> suma la cantidad de km recorridos por atleta en todas las sesionres registradas,
-#                                   para luego sumar el total de todos los ateltas y retornar esa sumatoria
-#
-#       recordDistancia(lista) --> vemos como hacerlo xd
-#
-#       mencionDeHonor(umbral) --> Recibe el umbral te da la lista con los nombres e indice del atleta
-#
-#       calcularVelocidad(indice_atleta) --> Muestra a todos los atletas en UI y te deja elegir uno para
-#                                             mostrar su velocidad por sesion y su velocidad promedio km/h m/s
-#
-#       atletaMasVeloz(minimaDistancia) --> Mostrar cual es el atleta mas rapido que recorrio al menos la
-#                                           minimaDistancia ingresada por el usuario
-#
-#       salirDelPrograma() --> Sale del while loop
 #
 # ESTRUCTURA DEL MENU
 # 1. Registrar nuevo atleta [registrarAtleta()]
@@ -361,17 +317,62 @@ def abrirVentanaEditarSesion():
                     tablaSesiones.insert("", END, values=(atleta["nombre"], sesion[0], sesion[1], sesion[2]))
 
     def editarSesion():
-        sesion = tablaSesiones.selection()
+        seleccion = tablaSesiones.selection() #Devuelve un array con la posicion del la fila seleccionada
 
-        if not sesion:  # Verifica que se haya seleccionado una sesion
+        if not seleccion:  # Verifica que se haya seleccionado una sesion
             print("Error: No se selecciono ninguna sesion")
             return  # Termina la funcion aca
+
+        sesion = tablaSesiones.item(seleccion[0], "values") #Guardamos los datos de la fila seleccionada
+
+        #Ejecutamos una nueva ventana estilo pop up para editar la sesion que elegimos
+        ventanaEditarSesion = Toplevel(ventanaEdicion)
+        configEstiloVentanas(ventanaEditarSesion, "Editar sesion")
+
+        # Etiquetas para identificar cada entrada
+        tituloDistancia = Label(ventanaEditarSesion, text="Ingrese la distancia recorrida en km (ej: 12.5): ", fg="white", bg="purple", width=50, font=("Arial", 12))
+        tituloTiempo = Label(ventanaEditarSesion, text="Ingrese el tiempo medido en minutos (ej: 150): ", fg="white", bg="purple", width=50, font=("Arial", 12))
+
+        # Entradas para una nueva sesion de entrenamiento
+        entradaDistancia = Entry(ventanaEditarSesion, width=30, font=("Arial", 12))
+        entradaTiempo = Entry(ventanaEditarSesion, width=30, font=("Arial", 12))
+
+        # Apilamiento de entradas y sus titulos correspondientes
+        tituloDistancia.pack(side="top", pady=10)
+        entradaDistancia.pack(side="top", pady=5)
+        tituloTiempo.pack(side="top", pady=10)
+        entradaTiempo.pack(side="top", pady=5)
+
+        # Boton de editar TODO: Editar la funcion de modificar sesion, que funcione sin indices
+        btnEditar = Button(ventanaEditarSesion, text="Editar", command=modificar_sesion(sesion[0], sesion[1], [entradaDistancia.get(), entradaTiempo.get()]), font=("Arial", 12))
+
+
 
     btnBuscarAtletas = Button(ventanaEdicion, text="Buscar", command=buscarAtletas, font=("Arial", 12))
     btnBuscarAtletas.pack(side="top", pady=5)
 
     btnEditarSesion = Button(ventanaEdicion, text="Editar", command=editarSesion, font=("Arial", 12))
     btnEditarSesion.pack(side="top", pady=5)
+
+def abrirVentanaEliminarSesion():
+    ventanaEliminacion = Toplevel(principal)
+    configEstiloVentanas(ventanaEliminacion, "Eliminar sesion")
+
+    titulo = Label(ventanaEliminacion, text="Ingrese el nombre del atleta que desea eliminar sus sesiones: ",
+                   fg="white", bg="purple", font=("Arial", 12))
+    nombre = Entry(ventanaEliminacion)
+    titulo.pack(side="top", pady=10)
+    nombre.pack(side="top", pady=5)
+
+    def eliminarSesion():
+        indice = buscar_por_nombre(nombre.get())
+        print(indice)
+        eliminar_entrenamientos(indice) #TODO: No funciona, la funcion buscar por nombre no devuelve un indice sino un diccionario
+
+    btnEliminar = Button(ventanaEliminacion, text="Eliminar sesiones", fg="white", bg="purple", font=("Arial", 16),
+              command=eliminarSesion)
+
+    btnEliminar.pack(side="top", pady=5)
 
 
 btn1 = Button(principal, text="Registrar nuevo atleta", fg="white", bg="purple", font=("Arial", 14),
@@ -380,7 +381,7 @@ btn2 = Button(principal, text="Cargar nueva sesion entrenamiento", fg="white", b
               command=abrirVentanaCargas)
 btn3 = Button(principal, text="Buscar/Editar sesion entrenamiento", fg="white", bg="purple", font=("Arial", 14),
               command=abrirVentanaEditarSesion)
-btn4 = Button(principal, text="Eliminar todas las sesiones de un atleta", fg="white", bg="purple", font=("Arial", 14))
+btn4 = Button(principal, text="Eliminar todas las sesiones de un atleta", fg="white", bg="purple", font=("Arial", 14), command=abrirVentanaEliminarSesion)
 btn5 = Button(principal, text="Visualizacion de reportes y estadisticas", fg="white", bg="purple", font=("Arial", 14))
 btn6 = Button(principal, text="Salir del programa", fg="white", bg="purple", font=("Arial", 14))
 
