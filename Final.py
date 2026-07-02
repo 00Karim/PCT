@@ -24,14 +24,14 @@ BDD = [
     {
         "nombre": "Alejandro Silva",
         "sesiones": [
-            ["01-04-2026", 21.0, 110.5],
+            ["01-04-2026", 21.5, 110.5],
             ["15-04-2026", 21.5, 108.0]
         ]
     },
     {
         "nombre": "Mariana Costa",
         "sesiones": [
-            ["04-04-2026", 5.0, 25.0],
+            ["04-04-2026", 21.5, 25.0],
             ["11-04-2026", 6.0, 29.5],
             ["18-04-2026", 7.5, 36.0]
         ]
@@ -100,9 +100,9 @@ def eliminar_entrenamientos(indice_atleta):
 
 # --- VOLUMEN TOTAL ACUMULADO ---
 def volumen_total():
-    vol_total = 0
     volumenes_por_atleta = []
     for atleta in BDD:
+        vol_total = 0
         for sesion in atleta["sesiones"]:  #
             vol_total += sesion[
                 1]  # 1 es la posicion (indice) de los km en la lista sesion. Vamos sumando el km de la sesion seleccionada a lo anterior
@@ -120,11 +120,9 @@ def record_distancia():  # Devuelve diccionario con nombre del atleta con la ses
                 sesion_mas_grande = sesion[1]  # 1 - cambiamos el valor con el que comparamos
                 atletas_con_sesion_mas_grande = []  # vaciamos la lista por si se habian agregado atletas antes
                 atletas_con_sesion_mas_grande.append({"nombre": atleta["nombre"], "fecha": sesion[0]})
-            if sesion_mas_grande == sesion[
-                1]:  # si son iguales entonces lo agregamos tambien a la lista sin borrar el otro (si un atleta tiene dos sesiones iguales, se agregan ambas porque tienen fechas distintas)
+            elif sesion_mas_grande == sesion[1]:  # si son iguales entonces lo agregamos tambien a la lista sin borrar el otro (si un atleta tiene dos sesiones iguales, se agregan ambas porque tienen fechas distintas)
                 atletas_con_sesion_mas_grande.append({"nombre": atleta["nombre"], "fecha": sesion[0]})
     return (atletas_con_sesion_mas_grande)
-
 
 # --- MENCION DE HONOR ---
 def mencion_de_honor(umbral_km):
@@ -190,8 +188,8 @@ if __name__ == "__main__":
 # GRAFICOS INTERFAZ DE USUARIO
 # CONFIGURACION INTERFAZ PANTALLA PRINCIPAL
 
-def configEstiloVentanas(ventana, titulo):  # Funcion para definir el estilo inicial de todas las ventanas
-    ventana.geometry("1000x1000")
+def configEstiloVentanas(ventana, resolucion , titulo):  # Funcion para definir el estilo inicial de todas las ventanas
+    ventana.geometry(resolucion)
     ventana.title("Proyecto Final - PCT")
     ventana.config(background="purple")
 
@@ -201,13 +199,13 @@ def configEstiloVentanas(ventana, titulo):  # Funcion para definir el estilo ini
 
 
 principal = Tk()  # Inicializacion de una instancia de la ventana principal
-configEstiloVentanas(principal, "Gestor Rendimiento de Atletas")  # Seteo de la ventana del menu principal
+configEstiloVentanas(principal, "500x500", "Gestor Rendimiento de Atletas")  # Seteo de la ventana del menu principal
 
 
 # Funcion para ejecutar la ventana de registro de nuevo atleta, sera utilizada en el boton correspondiente
 def abrirVentanaRegistro():
     ventanaRegistro = Toplevel(principal)
-    configEstiloVentanas(ventanaRegistro, "Registro de nuevo atleta")
+    configEstiloVentanas(ventanaRegistro, "500x500" , "Registro de nuevo atleta")
 
     entradaNombre = Entry(ventanaRegistro, width=30,
                           font=("Arial", 14))  # Campo de entrada para el nombre del nuevo atleta
@@ -229,7 +227,7 @@ def abrirVentanaRegistro():
 
 def abrirVentanaCargas():
     ventanaCargas = Toplevel(principal)
-    configEstiloVentanas(ventanaCargas, "Carga de nueva sesion")
+    configEstiloVentanas(ventanaCargas, "500x500" , "Carga de nueva sesion")
 
     # Etiquetas para identificar cada entrada
     tituloNombre = Label(ventanaCargas, text="Ingrese el nombre del atleta (ej: Erling Haaland): ", width=50,
@@ -291,7 +289,7 @@ def abrirVentanaCargas():
 
 def abrirVentanaEditarSesion():
     ventanaEdicion = Toplevel(principal)
-    configEstiloVentanas(ventanaEdicion, "Modificar sesiones de entrenamiento")
+    configEstiloVentanas(ventanaEdicion, "900x500", "Modificar sesiones de entrenamiento")
 
     entradaFecha = Entry(ventanaEdicion, width=30,
                          font=("Arial", 12))  # Le solicitamos al usuario la fecha que desea buscar
@@ -327,7 +325,7 @@ def abrirVentanaEditarSesion():
 
         #Ejecutamos una nueva ventana estilo pop up para editar la sesion que elegimos
         ventanaEditarSesion = Toplevel(ventanaEdicion)
-        configEstiloVentanas(ventanaEditarSesion, "Editar sesion")
+        configEstiloVentanas(ventanaEditarSesion, "500x500", "Editar sesion")
 
         # Etiquetas para identificar cada entrada
         tituloDistancia = Label(ventanaEditarSesion, text="Ingrese la distancia recorrida en km (ej: 12.5): ", fg="white", bg="purple", width=50, font=("Arial", 12))
@@ -344,8 +342,8 @@ def abrirVentanaEditarSesion():
         entradaTiempo.pack(side="top", pady=5)
 
         # Boton de editar TODO: Editar la funcion de modificar sesion, que funcione sin indices
-        btnEditar = Button(ventanaEditarSesion, text="Editar", command=modificar_sesion(sesion[0], sesion[1], [entradaDistancia.get(), entradaTiempo.get()]), font=("Arial", 12))
-
+        btnEditar = Button(ventanaEditarSesion, text="Editar", command=lambda: modificar_sesion(sesion[0], sesion[1], [entradaDistancia.get(), entradaTiempo.get()]), font=("Arial", 12))
+        btnEditar.pack(side="top", pady=5)
 
 
     btnBuscarAtletas = Button(ventanaEdicion, text="Buscar", command=buscarAtletas, font=("Arial", 12))
@@ -374,6 +372,66 @@ def abrirVentanaEliminarSesion():
 
     btnEliminar.pack(side="top", pady=5)
 
+def abrirVentanaReportes():
+    ventanaReportes = Toplevel(principal)
+    configEstiloVentanas(ventanaReportes, "400x500","Reportes y estadisticas")
+
+    #Configuraremos los botones para acceder a cada visualizacion solicitada
+    #Reporte volumen total
+    def abrirVolumen():
+        ventanaVolumenes = Toplevel(ventanaReportes)
+        configEstiloVentanas(ventanaVolumenes, "500x500", "Volumen de distancia por atleta")
+        tabla = Treeview(ventanaVolumenes, columns=("nombre", "volumen_total"),
+                             show="headings")  # Creacion de instancia de tabla para mostrar las sesiones
+        tabla.heading("#1", text="Nombre")
+        tabla.heading("#2", text="Voluemn Total")
+        tabla.pack(side="top", pady=5)
+        listaVolumenes = volumen_total()
+        for atleta in listaVolumenes:
+            tabla.insert("", END, values=(atleta["nombre"], atleta["volumen_total"]))
+
+    #Reporte de records de distancia
+    def abrirRecordDistancia():
+        ventanaDistancias = Toplevel(ventanaReportes)
+        configEstiloVentanas(ventanaDistancias, "500x500", "Atletas con el record de distancia recorrida")
+        tabla = Treeview(ventanaDistancias, columns=("nombre", "fecha"),
+                         show="headings")  # Creacion de instancia de tabla para mostrar las sesiones
+        tabla.heading("#1", text="Nombre")
+        tabla.heading("#2", text="Fecha")
+        tabla.pack(side="top", pady=5)
+        listaRecord = record_distancia()
+        for atleta in listaRecord:
+            tabla.insert("", END, values=(atleta["nombre"], atleta["fecha"]))
+
+    #Reporte de mencion de honor (atletas con sesiones mayores a un umbral)
+    def abrirMencionHonor():
+        ventanaHonor = Toplevel(ventanaReportes)
+        configEstiloVentanas(ventanaHonor, "500x500", "Mencion de Honor")
+
+        titulo = Label(ventanaHonor, text="Ingrese el umbral que desea definir en km: ", fg="white", bg="purple", width=50, font=("Arial", 12))
+        umbral = Entry(ventanaHonor, width=20, font=("Arial", 12))
+        titulo.pack(side="top", pady=5)
+        umbral.pack(side="top", pady=5)
+
+        lista = Listbox(ventanaHonor, height=15, width=50)
+        lista.pack(side="top", pady=5)
+
+        def buscarMencion():
+            umbral_km = umbral.get()
+            listaMencion = mencion_de_honor(float(umbral_km))
+            for atleta in listaMencion:
+                lista.insert(END, atleta)
+
+        btnBuscar = Button(ventanaHonor, text="Buscar", command=buscarMencion)
+        btnBuscar.pack(side="top", pady=5)
+
+
+    btnVolumen = Button(ventanaReportes, text="Volumen", command=abrirVolumen)
+    btnVolumen.pack(side="top", pady=10)
+    btnRecord = Button(ventanaReportes, text="Record Distancia", command=abrirRecordDistancia)
+    btnRecord.pack(side="top", pady=10)
+    btnMencion = Button(ventanaReportes, text="Mencion de Honor", command=abrirMencionHonor)
+    btnMencion.pack(side="top", pady=10)
 
 btn1 = Button(principal, text="Registrar nuevo atleta", fg="white", bg="purple", font=("Arial", 14),
               command=abrirVentanaRegistro)
@@ -381,8 +439,10 @@ btn2 = Button(principal, text="Cargar nueva sesion entrenamiento", fg="white", b
               command=abrirVentanaCargas)
 btn3 = Button(principal, text="Buscar/Editar sesion entrenamiento", fg="white", bg="purple", font=("Arial", 14),
               command=abrirVentanaEditarSesion)
-btn4 = Button(principal, text="Eliminar todas las sesiones de un atleta", fg="white", bg="purple", font=("Arial", 14), command=abrirVentanaEliminarSesion)
-btn5 = Button(principal, text="Visualizacion de reportes y estadisticas", fg="white", bg="purple", font=("Arial", 14))
+btn4 = Button(principal, text="Eliminar todas las sesiones de un atleta", fg="white", bg="purple", font=("Arial", 14),
+              command=abrirVentanaEliminarSesion)
+btn5 = Button(principal, text="Visualizacion de reportes y estadisticas", fg="white", bg="purple", font=("Arial", 14),
+              command=abrirVentanaReportes)
 btn6 = Button(principal, text="Salir del programa", fg="white", bg="purple", font=("Arial", 14))
 
 btn1.pack(side="top", pady=10)  # Apilacion de botones de la ventana principal
