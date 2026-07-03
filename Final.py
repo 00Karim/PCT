@@ -3,6 +3,7 @@
 import tkinter
 from tkinter import *
 from tkinter.ttk import Treeview
+from datetime import datetime #Libreria utilizada para validar las fechas
 
 BDD = [
     {
@@ -67,8 +68,7 @@ def cargar_entrenamiento(nombre, sesion):
 
 
 # --- MODIFICAR SESION ---
-def buscar_por_fecha(
-        fecha):  # esta funcion sirve para simplificar la funcion de modificar un entrenamiento por la fecha
+def buscar_por_fecha(fecha):  # esta funcion sirve para simplificar la funcion de modificar un entrenamiento por la fecha
     lista_atletas = []
     for atleta in BDD:  # ... basicamente, el usuario ve todos los atletas con fechas parecidas y elige le que quiere modificar
         for sesion in atleta["sesiones"]:
@@ -159,72 +159,96 @@ def calcular_velocidad(indice_atleta):
     return ([registro_sesiones, promedio_kmph, promedio_mps])
 
 
-# Funciones para validacion de datos
+# --- FUNCIONES DE VALIDACION DE DATOS ---
 
-# def validar_numero_positivo(num):
+def validar_fecha(fecha):
+    try:
+        fecha = datetime.strptime(fecha, "%d-%m-%Y") #Utilizando la libreria datetime, comprobamos que la fecha sea valida
+        dia_actual = datetime.now() #Obtenemos la fecha actual
+        if fecha <= dia_actual: #Comprobamos que la fecha ingresada no sea mayor a la actual
+            return True
+        else:
+            return False
+    except ValueError:
+        return False
 
+def validar_numero_positivo(num):
+    try:
+        num = int(num) #Intentamos convertir el numero ingresado a entero
+        if num >= 0: #Compruebo que sea mayor o igual a 0
+            return True
+        else:
+            return False
+    except ValueError:
+        return False #Se ingreso un tipo de dato que no se puede converir a entero (string, bool, etc)
 
-if __name__ == "__main__":
-    for i in BDD:
-        print(i["nombre"])
-    registrar_atleta("Prueba Pruebosa")
-    for i in BDD:
-        print(i["nombre"])
+def validar_texto(texto):
+        #Con replace, eliminamos los espacios para que quede una unica cadena, ej: leo messi = leomessi
+        #Con isalpha, comprobamos si son letras, cualquier otro tipo devolvera false
+        return texto.replace(" ", "").isalpha()
 
-#
-# ESTRUCTURA DEL MENU
-# 1. Registrar nuevo atleta [registrarAtleta()]
-# 2. Cargar nuevo entrenamiento [cargarEntrenamiento()]
-# 3. Buscar/Editar un entrenamiento [buscarFecha()][modificarFecha()]
-# 4. Eliminar todos los entrenamientos de un atleta (generando un reporte)
-# 5. Visualizar reportes y estadisticas
-## 5.1 Volumen total acumulado
-## 5.2 Record de distanciacc
-## 5.3 Mencion de honor
-## 5.4 Calcular velocidad
-## 5.5 Atleta mas veloz
-# 6. Salir del programa
+print(validar_fecha("18-12-2022")) #TODO: Borrar los chequeos de numeros y fechas
+print(validar_numero_positivo(19))
+print(validar_numero_positivo(-20))
+print(validar_texto(" "))
 
-# GRAFICOS INTERFAZ DE USUARIO
-# CONFIGURACION INTERFAZ PANTALLA PRINCIPAL
+#if __name__ == "__main__":
+#    for i in BDD:
+#        print(i["nombre"])
+#    registrar_atleta("Prueba Pruebosa")
+#    for i in BDD:
+#        print(i["nombre"])
 
+#--- GRAFICOS INTERFAZ DE USUARIO ---
+
+#Funcion para configurar ventanas de forma generica, objeto ventana y resolucion son requeridos,
+#el titulo es opcional.
 def configEstiloVentanas(ventana, resolucion , titulo):  # Funcion para definir el estilo inicial de todas las ventanas
     ventana.geometry(resolucion)
     ventana.title("Proyecto Final - PCT")
     ventana.config(background="purple")
 
     if titulo != "":  # Si la ventana requiere un titulo, se le agrega el mismo estilo
-        tituloVentana = Label(ventana, text=titulo, fg="white", bg="purple", font=("Arial", 20))
+        tituloVentana = Label(ventana, text=titulo, wraplength=300 , fg="white", bg="purple", font=("Arial", 20))
         tituloVentana.pack(side="top", pady=20)  # Apilacion de titulo de las ventanas
-
 
 principal = Tk()  # Inicializacion de una instancia de la ventana principal
 configEstiloVentanas(principal, "500x500", "Gestor Rendimiento de Atletas")  # Seteo de la ventana del menu principal
 
+#--- VENTANAS DE EXITO O ERROR ---
+def ventanaExitoError(mensaje, ventana):
+    ventanaExitoError = Toplevel(ventana)
+    configEstiloVentanas(ventanaExitoError,"400x300", mensaje)
+    btnCerrar = Button(ventanaExitoError, text="Cerrar", command=ventanaExitoError.destroy)
+    btnCerrar.pack(pady=20)
 
-# Funcion para ejecutar la ventana de registro de nuevo atleta, sera utilizada en el boton correspondiente
+#Todas las funciones listadas debajo son llamadas por sus correspondientes botones en el menu principal
+
+# Funcion para abrir la ventana de registro nuevo atleta
 def abrirVentanaRegistro():
+    #principal.withdraw()
     ventanaRegistro = Toplevel(principal)
-    configEstiloVentanas(ventanaRegistro, "500x500" , "Registro de nuevo atleta")
-
-    entradaNombre = Entry(ventanaRegistro, width=30,
-                          font=("Arial", 14))  # Campo de entrada para el nombre del nuevo atleta
+    configEstiloVentanas(ventanaRegistro, "500x200" , "Registro de nuevo atleta")
+    contenedor = Frame(ventanaRegistro, bg="purple") #Definimos el contenedor para que entry y boton queden en linea
+    desc = Label(ventanaRegistro, text="Ingrese el nombre del atleta que desea registrar: ",bg= "purple", fg="white", width=50, font=("Arial", 12))
+    entradaNombre = Entry(contenedor, width=30, font=("Arial", 14))  # Campo de entrada para el nombre del nuevo atleta
 
     def obtenerDatos():  # Funcion para obtener los datos de la entrada (el nombre)
         nombre = entradaNombre.get()  # Obtengo el texto de la entrada
-        if nombre != "":  # Se guardara el nuevo atleta unicamente si el campo no esta vacio
+        if validar_texto(nombre):  # Chequeo que el nombre sea valido
             registrar_atleta(nombre)  # Registro el nuevo atleta utilizando la funcion previamente definida
             entradaNombre.delete(0, "end")  # Borro el contenido de la entrada
-            print("Atleta registrado correctamente")  # Eliminar esta y las dos lineas de abajo
-            for i in BDD:
-                print(i["nombre"])
+            ventanaExitoError("Atleta registrado correctamente.", ventanaRegistro)
+        else:
+            ventanaExitoError("Error: No se ha ingresado un nombre valido, vuelva a intentar.", ventanaRegistro)
+    btnRegistro = Button(contenedor, text="Registro", command=obtenerDatos)
 
-    btnRegistro = Button(ventanaRegistro, text="Registro", command=obtenerDatos)
+    desc.pack(side="top", pady=10)
+    contenedor.pack(pady=10)
+    entradaNombre.pack(side="left", padx=10)
+    btnRegistro.pack(side="left", padx=10)
 
-    entradaNombre.pack(side="top", pady=20)
-    btnRegistro.pack(side="top", pady=20)
-
-
+#Funcion para abrir la ventana de carga de nueva sesion de entrenamiento
 def abrirVentanaCargas():
     ventanaCargas = Toplevel(principal)
     configEstiloVentanas(ventanaCargas, "500x500" , "Carga de nueva sesion")
@@ -257,36 +281,41 @@ def abrirVentanaCargas():
 
     def carga():
         sesion = []  # Declaramos una nueva lista de sesion
-        # Aca habria que verificar que la entrada sea valida utilizando la funcion correspondiente
-        sesion.append(entradaFecha.get())
-
-        distancia = float(entradaDistancia.get())
-        entradaTiempo.delete(0, "end")
-        if distancia <= 0:  # Esta validacion y la de abajo habria que hacer una funcion para chequear ingreso de numeros positivos
-            print("Distancia incorrecta")
-        else:
-            sesion.append(distancia)
-
-        tiempo = float(entradaDistancia.get())
-        entradaDistancia.delete(0, "end")
-        if tiempo <= 0:
-            print("Tiempo incorrecto")
-        else:
-            sesion.append(tiempo)
-
         nombre = entradaNombre.get()
-        if nombre == "":  # Esta validacion habria que crear una funcion general para chequear ingreso de cadenas
-            print("El nombre es necesario")
-        else:
-            cargar_entrenamiento(nombre, sesion)
-            for i in BDD:  # Con este bucle buscamos las sesiones del atleta ingresado
-                if i["nombre"] == nombre:
-                    print(i["sesiones"])
+        fecha = entradaFecha.get()
+        print(fecha)
+        print(validar_fecha(fecha))
+        distancia = entradaDistancia.get()
+        tiempo = entradaTiempo.get()
 
-    btnCarga = Button(ventanaCargas, text="Carga", command=carga, font=("Arial", 12))
+        #En cada bucle if, validamos si los datos ingresados son validos
+        if validar_texto(nombre): #TODO: Crear validacion de atleta en la base de datos
+            if validar_fecha(fecha):
+                sesion.append(fecha) #Como se ingreso una fecha valida, se agrega al array sesion
+                if validar_numero_positivo(distancia):
+                    sesion.append(float(distancia))
+                    if validar_numero_positivo(tiempo):
+                        sesion.append(float(tiempo))
+                        cargar_entrenamiento(nombre, sesion) #Como todos son validos, cargamos la sesion
+                        entradaNombre.delete(0, "end") #Borramos todas las entradas para despejarlas
+                        entradaFecha.delete(0, "end")
+                        entradaDistancia.delete(0, "end")
+                        entradaTiempo.delete(0, "end")
+                        ventanaExitoError("La sesion de entrenamiento se ha cargado con exito.", ventanaCargas)
+                    else:
+                        ventanaExitoError("Se ha ingresado un tiempo invalido, vuelva a intentar.", ventanaCargas)
+                else:
+                    ventanaExitoError("Se ha ingresado una distancia invalida, vuelva a intentar.", ventanaCargas)
+            else:
+                ventanaExitoError("Se ha ingresado una fecha invalida, vuelva a intentar.", ventanaCargas)
+        else:
+            ventanaExitoError("Se ha ingresado un nombre invalido, vuelva a intentar.", ventanaCargas)
+
+
+    btnCarga = Button(ventanaCargas, text="Cargar sesion", command=carga, font=("Arial", 12))
     btnCarga.pack(side="top", pady=20)
 
-
+#Funcion para abrir la ventana de busqueda y edicion de una sesion de entrenamiento
 def abrirVentanaEditarSesion():
     ventanaEdicion = Toplevel(principal)
     configEstiloVentanas(ventanaEdicion, "900x500", "Modificar sesiones de entrenamiento")
@@ -305,13 +334,14 @@ def abrirVentanaEditarSesion():
 
     def buscarAtletas():  # Funcion para mostrar en la lista los entrenamientos realizados en la fecha indicada
         fecha = entradaFecha.get()  # Capturamos el contenido del input en el momento de apretar el boton
-        entradaFecha.delete(0, "end")
+        entradaFecha.delete(0, "end") #Borramos el entry de fecha
 
-        listaAtletas = buscar_por_fecha(fecha)
+        listaAtletas = buscar_por_fecha(fecha) #Utilizamos la funcion definida previamente
         for atleta in listaAtletas:  # Accede a cada atleta de la lista que contiene los atletas con un entrenamiento en esa fecha
             for sesion in atleta["sesiones"]:  # Accede a cada sesion de entrenamiento
-                if sesion[
-                    0] == fecha:  # Compara las sesiones de cada atleta que y filtra por las que coincidan con la fecha
+                if sesion[0] == fecha:  # Compara las sesiones de cada atleta que y filtra por las que coincidan con la fecha
+                    for f in tablaSesiones.get_children(): #Bucle for para eliminar los datos que hayan en la tabla previamente
+                        tablaSesiones.delete(f)
                     tablaSesiones.insert("", END, values=(atleta["nombre"], sesion[0], sesion[1], sesion[2]))
 
     def editarSesion():
@@ -352,6 +382,7 @@ def abrirVentanaEditarSesion():
     btnEditarSesion = Button(ventanaEdicion, text="Editar", command=editarSesion, font=("Arial", 12))
     btnEditarSesion.pack(side="top", pady=5)
 
+#Funcion para abrir la ventana donde se puede eliminar todos los entrenamientos de un atleta
 def abrirVentanaEliminarSesion():
     ventanaEliminacion = Toplevel(principal)
     configEstiloVentanas(ventanaEliminacion, "Eliminar sesion")
@@ -372,6 +403,7 @@ def abrirVentanaEliminarSesion():
 
     btnEliminar.pack(side="top", pady=5)
 
+#Funcion que despliega un menu donde se pueden obtener los reportes y estadisticas buscados
 def abrirVentanaReportes():
     ventanaReportes = Toplevel(principal)
     configEstiloVentanas(ventanaReportes, "400x500","Reportes y estadisticas")
@@ -433,6 +465,11 @@ def abrirVentanaReportes():
     btnMencion = Button(ventanaReportes, text="Mencion de Honor", command=abrirMencionHonor)
     btnMencion.pack(side="top", pady=10)
 
+#Funcion que cierra el menu principal
+def cerrarMenu():
+    principal.destroy()
+
+#BOTONES DEL MENU PRINCIPAL
 btn1 = Button(principal, text="Registrar nuevo atleta", fg="white", bg="purple", font=("Arial", 14),
               command=abrirVentanaRegistro)
 btn2 = Button(principal, text="Cargar nueva sesion entrenamiento", fg="white", bg="purple", font=("Arial", 14),
@@ -443,7 +480,7 @@ btn4 = Button(principal, text="Eliminar todas las sesiones de un atleta", fg="wh
               command=abrirVentanaEliminarSesion)
 btn5 = Button(principal, text="Visualizacion de reportes y estadisticas", fg="white", bg="purple", font=("Arial", 14),
               command=abrirVentanaReportes)
-btn6 = Button(principal, text="Salir del programa", fg="white", bg="purple", font=("Arial", 14))
+btn6 = Button(principal, text="Salir del programa", fg="white", bg="purple", font=("Arial", 14), command=cerrarMenu)
 
 btn1.pack(side="top", pady=10)  # Apilacion de botones de la ventana principal
 btn2.pack(side="top", pady=10)
