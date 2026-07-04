@@ -1,6 +1,8 @@
 # from idlelib import __main__
 # from operator import truediv
 import tkinter
+from operator import truediv
+
 from customtkinter import *
 from tkinter import *
 from tkinter.ttk import Treeview
@@ -193,10 +195,6 @@ def validar_texto(texto):
         #Con isalpha, comprobamos si son letras, cualquier otro tipo devolvera false
         return texto.replace(" ", "").isalpha()
 
-print(validar_fecha("18-12-2022")) #TODO: Borrar los chequeos de numeros y fechas
-print(validar_numero_positivo(19))
-print(validar_numero_positivo(-20))
-print(validar_texto(" "))
 
 #if __name__ == "__main__":
 #    for i in BDD:
@@ -302,13 +300,11 @@ def abrirVentanaCargas():
         sesion = []  # Declaramos una nueva lista de sesion
         nombre = entradaNombre.get()
         fecha = entradaFecha.get()
-        print(fecha)
-        print(validar_fecha(fecha))
         distancia = entradaDistancia.get()
         tiempo = entradaTiempo.get()
 
         #En cada bucle if, validamos si los datos ingresados son validos
-        if validar_texto(nombre): #TODO: Crear validacion de atleta en la base de datos
+        if validar_texto(nombre):
             if validar_fecha(fecha):
                 sesion.append(fecha) #Como se ingreso una fecha valida, se agrega al array sesion
                 if validar_numero_positivo(distancia):
@@ -359,12 +355,10 @@ def abrirVentanaEditarSesion():
         for atleta in listaAtletas:  # Accede a cada atleta de la lista que contiene los atletas con un entrenamiento en esa fecha
             for sesion in atleta["sesiones"]:  # Accede a cada sesion de entrenamiento
                 if sesion[0] == fecha:  # Compara las sesiones de cada atleta que y filtra por las que coincidan con la fecha
-                    for f in tablaSesiones.get_children(): #Bucle for para eliminar los datos que hayan en la tabla previamente
-                        tablaSesiones.delete(f)
                     tablaSesiones.insert("", END, values=(atleta["nombre"], sesion[0], sesion[1], sesion[2]))
 
     def editarSesion():
-        seleccion = tablaSesiones.selection() #Devuelve un array con la posicion del la fila seleccionada
+        seleccion = tablaSesiones.selection() #Guarda un array con la fila seleccionada
 
         if not seleccion:  # Verifica que se haya seleccionado una sesion
             print("Error: No se selecciono ninguna sesion")
@@ -390,15 +384,25 @@ def abrirVentanaEditarSesion():
         tituloTiempo.pack(side="top", pady=10)
         entradaTiempo.pack(side="top", pady=5)
 
-        # Boton de editar TODO: Editar la funcion de modificar sesion, que funcione sin indices
-        btnEditar = Button(ventanaEditarSesion, text="Editar", command=lambda: modificar_sesion(sesion[0], sesion[1], [entradaDistancia.get(), entradaTiempo.get()]), font=("Arial", 12))
+        def ejecucionEdicion(sesion):
+            nombre=sesion[0]
+            viejaSesion = [sesion[1], float(sesion[2]), float(sesion[3])]
+            nuevaSesion = [sesion[1],float(entradaDistancia.get()), float(entradaTiempo.get())]
+            modificar_sesion(nombre, viejaSesion, nuevaSesion)
+            for i in BDD:
+                for j in i["sesiones"]:
+                    if i["nombre"] == "Carlos Mendoza":
+                        print(j)
+
+        # Boton de editar
+        btnEditar = Button(ventanaEditarSesion, text="Editar",command=lambda: ejecucionEdicion(sesion), font=("Arial", 12))
         btnEditar.pack(side="top", pady=5)
 
 
     btnBuscarAtletas = Button(ventanaEdicion, text="Buscar", command=buscarAtletas, font=("Arial", 12))
     btnBuscarAtletas.pack(side="top", pady=5)
 
-    btnEditarSesion = Button(ventanaEdicion, text="Editar", command=editarSesion, font=("Arial", 12))
+    btnEditarSesion = Button(ventanaEdicion, text="Editar", command=lambda:editarSesion(), font=("Arial", 12))
     btnEditarSesion.pack(side="top", pady=5)
 
 #Funcion para abrir la ventana donde se puede eliminar todos los entrenamientos de un atleta
