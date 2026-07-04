@@ -1,6 +1,7 @@
 # from idlelib import __main__
 # from operator import truediv
 import tkinter
+from customtkinter import *
 from tkinter import *
 from tkinter.ttk import Treeview
 from datetime import datetime #Libreria utilizada para validar las fechas
@@ -209,17 +210,28 @@ def configEstiloVentanas(ventana, resolucion , titulo):  # Funcion para definir 
     ventana.config(background="purple")
 
     if titulo != "":  # Si la ventana requiere un titulo, se le agrega el mismo estilo
-        tituloVentana = Label(ventana, text=titulo, wraplength=300 , fg="white", bg="purple", font=("Arial", 20))
+        tituloVentana = Label(ventana, text=titulo, wraplength=500 , fg="white", bg="purple", font=("Arial", 28))
         tituloVentana.pack(side="top", pady=20)  # Apilacion de titulo de las ventanas
 
-principal = Tk()  # Inicializacion de una instancia de la ventana principal
+def configBotonMenu(ventana, texto, comando):
+    btn = CTkButton(ventana, text=texto, font=("Segoe UI", 20),
+                command=comando, fg_color="#45098F",bg_color="purple",
+                border_width=1,
+                border_color="white",
+                corner_radius=6,
+                height=40)
+    return btn
+
+principal = CTk()  # Inicializacion de una instancia de la ventana principal
 configEstiloVentanas(principal, "500x500", "Gestor Rendimiento de Atletas")  # Seteo de la ventana del menu principal
 
 #--- VENTANAS DE EXITO O ERROR ---
 def ventanaExitoError(mensaje, ventana):
     ventanaExitoError = Toplevel(ventana)
-    configEstiloVentanas(ventanaExitoError,"400x300", mensaje)
-    btnCerrar = Button(ventanaExitoError, text="Cerrar", command=ventanaExitoError.destroy)
+    configEstiloVentanas(ventanaExitoError,"600x350", "")
+    descripcion = CTkLabel(ventanaExitoError, text=mensaje, wraplength=400, font=("Segoe UI", 22))
+    btnCerrar = configBotonMenu(ventanaExitoError, "Cerrar", ventanaExitoError.destroy)
+    descripcion.pack(pady=20)
     btnCerrar.pack(pady=20)
 
 #Todas las funciones listadas debajo son llamadas por sus correspondientes botones en el menu principal
@@ -230,7 +242,9 @@ def abrirVentanaRegistro():
     ventanaRegistro = Toplevel(principal)
     configEstiloVentanas(ventanaRegistro, "500x200" , "Registro de nuevo atleta")
     contenedor = Frame(ventanaRegistro, bg="purple") #Definimos el contenedor para que entry y boton queden en linea
-    desc = Label(ventanaRegistro, text="Ingrese el nombre del atleta que desea registrar: ",bg= "purple", fg="white", width=50, font=("Arial", 12))
+    desc = Label(ventanaRegistro, text="Ingrese el nombre del atleta que desea registrar: ",
+                 bg= "purple", fg="white", width=50,
+                 wraplength=400, font=("Arial", 20))
     entradaNombre = Entry(contenedor, width=30, font=("Arial", 14))  # Campo de entrada para el nombre del nuevo atleta
 
     def obtenerDatos():  # Funcion para obtener los datos de la entrada (el nombre)
@@ -470,17 +484,12 @@ def cerrarMenu():
     principal.destroy()
 
 #BOTONES DEL MENU PRINCIPAL
-btn1 = Button(principal, text="Registrar nuevo atleta", fg="white", bg="purple", font=("Arial", 14),
-              command=abrirVentanaRegistro)
-btn2 = Button(principal, text="Cargar nueva sesion entrenamiento", fg="white", bg="purple", font=("Arial", 14),
-              command=abrirVentanaCargas)
-btn3 = Button(principal, text="Buscar/Editar sesion entrenamiento", fg="white", bg="purple", font=("Arial", 14),
-              command=abrirVentanaEditarSesion)
-btn4 = Button(principal, text="Eliminar todas las sesiones de un atleta", fg="white", bg="purple", font=("Arial", 14),
-              command=abrirVentanaEliminarSesion)
-btn5 = Button(principal, text="Visualizacion de reportes y estadisticas", fg="white", bg="purple", font=("Arial", 14),
-              command=abrirVentanaReportes)
-btn6 = Button(principal, text="Salir del programa", fg="white", bg="purple", font=("Arial", 14), command=cerrarMenu)
+btn1 = configBotonMenu(principal, "Registrar nuevo atleta", abrirVentanaRegistro)
+btn2 = configBotonMenu(principal, "Cargar nueva sesion de entrenamiento", abrirVentanaCargas)
+btn3 = configBotonMenu(principal, "Buscar/Editar sesion de entrenamiento", abrirVentanaEditarSesion)
+btn4 = configBotonMenu(principal, "Eliminar todas las sesiones de un atleta", abrirVentanaEliminarSesion)
+btn5 = configBotonMenu(principal, "Visualizacion de reportes y estadisticas", abrirVentanaReportes)
+btn6 = configBotonMenu(principal, "Salir del programa", cerrarMenu)
 
 btn1.pack(side="top", pady=10)  # Apilacion de botones de la ventana principal
 btn2.pack(side="top", pady=10)
