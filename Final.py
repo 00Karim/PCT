@@ -175,6 +175,39 @@ def calcular_velocidad(nombre_atleta):
         promedio_mps = velocidad_en_mps / numero_sesion
     return ([registro_sesiones, promedio_kmph, promedio_mps])
 
+def atleta_mas_veloz(umbral_km):
+
+    atletas_en_umbral = []
+
+    for atleta in BDD:
+        sesiones_en_umbral = []
+        for sesion in atleta["sesiones"]:
+            if sesion[1] > umbral_km:
+                sesiones_en_umbral.append(sesion)
+        if len(sesiones_en_umbral) > 0: # si el atleta tiene sesiones por encima del umbral, aniadimos su nobmre y sesiones por encima del umbral a la lista
+            atletas_en_umbral.append({"nombre": atleta["nombre"], "sesiones_en_umbral": sesiones_en_umbral})
+        sesiones_en_umbral = [] # vaciamos la lista para seguir con el siguiente atleta
+
+    velocidad_atletas = []
+
+    # para los atletas y sus sesion dentro de umbral, definimos la velocidad para cada sesion y la
+    # asociamos a su nombre en otro diccionario
+    for atleta in atletas_en_umbral:
+        for sesion in atleta["sesiones_en_umbral"]:
+            velocidad_sesion_kmph = (sesion[1]) * 60 / sesion[2]
+            velocidad_atletas.append({"nombre": atleta["nombre"], "velocidad": velocidad_sesion_kmph})
+
+    atleta_mas_rapido = {"nombre": "", "velocidad": 0}
+
+    # recorremos el diccionario de atletas y velocidad de sus sesiones buscando la mas rapida en ese umbral
+
+    for atleta in velocidad_atletas:
+        if atleta["velocidad"] > atleta_mas_rapido["velocidad"]:
+            atleta_mas_rapido["nombre"] = atleta["nombre"]
+            atleta_mas_rapido["velocidad"] = atleta["velocidad"]
+
+    return atleta_mas_rapido
+
 
 # --- FUNCIONES DE VALIDACION DE DATOS ---
 
