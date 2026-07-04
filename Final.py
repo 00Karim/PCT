@@ -74,13 +74,18 @@ def buscar_por_fecha(fecha):  # esta funcion sirve para simplificar la funcion d
     for atleta in BDD:  # ... basicamente, el usuario ve todos los atletas con fechas parecidas y elige le que quiere modificar
         for sesion in atleta["sesiones"]:
             if sesion[0] == fecha:
-                lista_atletas.append(
-                    atleta)  # agregamos la posicion del atleta que tiene esa fecha en sus entrenamientos
-    return lista_atletas  # devuelve todos los atletas que tienen alguna sesion con la fecha ingresada
+                lista_atletas.append(atleta)  # agregamos al atleta que tiene esa fecha en sus entrenamientos
+    return (lista_atletas)# devuelve todos los atletas que tienen alguna sesion con la fecha ingresada
 
 
-def modificar_sesion(indice_atleta, indice_sesion, nueva_sesion):
-    BDD[indice_atleta]["sesiones"][indice_sesion] = nueva_sesion
+def modificar_sesion(nombre_atleta, sesion_vieja, nueva_sesion):
+    for atleta in BDD:
+        if atleta["nombre"] == nombre_atleta:
+            # enumerate() devuelve la posición (i) y el elemento (sesion) al mismo tiempo.
+            # lo usamos para saber exactamente qué índice de la lista tenemos que modificar.
+            for i, sesion in enumerate(atleta["sesiones"]):
+                if sesion[0] == sesion_vieja[0] and sesion[1] == sesion_vieja[1] and sesion[2] == sesion_vieja[2]:
+                    atleta["sesiones"][i] = nueva_sesion # modificamos la sesion correspondiente del atleta correspondiente
     # recibe los indices de atleta y su sesion que debe ser cambiada y la reemplaza por una nueva
 
 
