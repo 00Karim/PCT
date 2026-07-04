@@ -145,7 +145,16 @@ def mencion_de_honor(umbral_km):
 
 
 # --- CALCULAR VELOCIDAD ---
-def calcular_velocidad(indice_atleta):
+def calcular_velocidad(nombre_atleta):
+
+    indice_atleta = 0
+
+    # determinamos el indice del atleta con el nombre ingresado para usarlo mas adelante
+    for i, atleta in enumerate(BDD):
+        if atleta["nombre"] == nombre_atleta:
+            indice_atleta = i
+            break # detenemos el loop porque ya se encontro al atleta
+
     velocidad_en_kmph = 0
     velocidad_en_mps = 0
     numero_sesion = 0
