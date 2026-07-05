@@ -285,12 +285,12 @@ def ventanaExitoError(mensaje, ventana):
 def abrirVentanaRegistro():
     #principal.withdraw()
     ventanaRegistro = Toplevel(principal)
-    configEstiloVentanas(ventanaRegistro, "500x200" , "Registro de nuevo atleta")
+    configEstiloVentanas(ventanaRegistro, "500x300" , "Registro de nuevo atleta")
     contenedor = Frame(ventanaRegistro, bg="purple") #Definimos el contenedor para que entry y boton queden en linea
     desc = Label(ventanaRegistro, text="Ingrese el nombre del atleta que desea registrar: ",
                  bg= "purple", fg="white", width=50,
                  wraplength=400, font=("Arial", 20))
-    entradaNombre = Entry(contenedor, width=30, font=("Arial", 14))  # Campo de entrada para el nombre del nuevo atleta
+    entradaNombre = Entry(contenedor, width=20, font=("Arial", 20))  # Campo de entrada para el nombre del nuevo atleta
 
     def obtenerDatos():  # Funcion para obtener los datos de la entrada (el nombre)
         nombre = entradaNombre.get()  # Obtengo el texto de la entrada
@@ -300,7 +300,7 @@ def abrirVentanaRegistro():
             ventanaExitoError("Atleta registrado correctamente.", ventanaRegistro)
         else:
             ventanaExitoError("Error: No se ha ingresado un nombre valido, vuelva a intentar.", ventanaRegistro)
-    btnRegistro = Button(contenedor, text="Registro", command=obtenerDatos)
+    btnRegistro = configBotonMenu(contenedor, "Registro", obtenerDatos)
 
     desc.pack(side="top", pady=10)
     contenedor.pack(pady=10)
@@ -310,23 +310,23 @@ def abrirVentanaRegistro():
 #Funcion para abrir la ventana de carga de nueva sesion de entrenamiento
 def abrirVentanaCargas():
     ventanaCargas = Toplevel(principal)
-    configEstiloVentanas(ventanaCargas, "500x500" , "Carga de nueva sesion")
+    configEstiloVentanas(ventanaCargas, "600x600" , "Carga de nueva sesion")
 
     # Etiquetas para identificar cada entrada
     tituloNombre = Label(ventanaCargas, text="Ingrese el nombre del atleta (ej: Erling Haaland): ", width=50,
-                         fg="white", bg="purple", font=("Arial", 12))
+                         fg="white", bg="purple", font=("Arial", 18))
     tituloFecha = Label(ventanaCargas, text="Ingrese la fecha de la sesion (ej: 18-12-2022): ", width=50, fg="white",
-                        bg="purple", font=("Arial", 12))
+                        bg="purple", font=("Arial", 18))
     tituloDistancia = Label(ventanaCargas, text="Ingrese la distancia recorrida en km (ej: 12.5): ", fg="white",
-                            bg="purple", width=50, font=("Arial", 12))
+                            bg="purple", width=50, font=("Arial", 18))
     tituloTiempo = Label(ventanaCargas, text="Ingrese el tiempo medido en minutos (ej: 150): ", fg="white", bg="purple",
-                         width=50, font=("Arial", 12))
+                         width=50, font=("Arial", 18))
 
     # Entradas para una nueva sesion de entrenamiento
-    entradaNombre = Entry(ventanaCargas, width=30, font=("Arial", 12))
-    entradaFecha = Entry(ventanaCargas, width=30, font=("Arial", 12))
-    entradaDistancia = Entry(ventanaCargas, width=30, font=("Arial", 12))
-    entradaTiempo = Entry(ventanaCargas, width=30, font=("Arial", 12))
+    entradaNombre = Entry(ventanaCargas, width=30, font=("Arial", 18))
+    entradaFecha = Entry(ventanaCargas, width=30, font=("Arial", 18))
+    entradaDistancia = Entry(ventanaCargas, width=30, font=("Arial", 18))
+    entradaTiempo = Entry(ventanaCargas, width=30, font=("Arial", 18))
 
     # Apilamiento de entradas y sus titulos correspondientes
     tituloNombre.pack(side="top", pady=10)
@@ -368,8 +368,7 @@ def abrirVentanaCargas():
         else:
             ventanaExitoError("Se ha ingresado un nombre invalido, vuelva a intentar.", ventanaCargas)
 
-
-    btnCarga = Button(ventanaCargas, text="Cargar sesion", command=carga, font=("Arial", 12))
+    btnCarga = configBotonMenu(ventanaCargas, "Cargar sesion", carga)
     btnCarga.pack(side="top", pady=20)
 
 #Funcion para abrir la ventana de busqueda y edicion de una sesion de entrenamiento
@@ -378,7 +377,7 @@ def abrirVentanaEditarSesion():
     configEstiloVentanas(ventanaEdicion, "900x500", "Modificar sesiones de entrenamiento")
 
     entradaFecha = Entry(ventanaEdicion, width=30,
-                         font=("Arial", 12))  # Le solicitamos al usuario la fecha que desea buscar
+                                        font=("Arial", 12))  # Le solicitamos al usuario la fecha que desea buscar
     entradaFecha.pack(side="top", pady=5)
 
     tablaSesiones = Treeview(ventanaEdicion, columns=("nombre", "fecha", "distancia", "tiempo"),
@@ -389,21 +388,29 @@ def abrirVentanaEditarSesion():
     tablaSesiones.heading("#4", text="Tiempo")
     tablaSesiones.pack(side="top", pady=5)
 
+    #Estilizamos la tabla
+
+    tablaSesiones.configure()
+
     def buscarAtletas():  # Funcion para mostrar en la lista los entrenamientos realizados en la fecha indicada
         fecha = entradaFecha.get()  # Capturamos el contenido del input en el momento de apretar el boton
         entradaFecha.delete(0, "end") #Borramos el entry de fecha
 
-        listaAtletas = buscar_por_fecha(fecha) #Utilizamos la funcion definida previamente
-        for atleta in listaAtletas:  # Accede a cada atleta de la lista que contiene los atletas con un entrenamiento en esa fecha
-            for sesion in atleta["sesiones"]:  # Accede a cada sesion de entrenamiento
-                if sesion[0] == fecha:  # Compara las sesiones de cada atleta que y filtra por las que coincidan con la fecha
-                    tablaSesiones.insert("", END, values=(atleta["nombre"], sesion[0], sesion[1], sesion[2]))
+        if validar_fecha(fecha):
+            listaAtletas = buscar_por_fecha(fecha)  # Utilizamos la funcion definida previamente
+            for atleta in listaAtletas:  # Accede a cada atleta de la lista que contiene los atletas con un entrenamiento en esa fecha
+                for sesion in atleta["sesiones"]:  # Accede a cada sesion de entrenamiento
+                    if sesion[
+                        0] == fecha:  # Compara las sesiones de cada atleta que y filtra por las que coincidan con la fecha
+                        tablaSesiones.insert("", END, values=(atleta["nombre"], sesion[0], sesion[1], sesion[2]))
+        else:
+            ventanaExitoError("Error: Ingrese una fecha valida y vuelva a intentarlo", ventanaEdicion)
 
     def editarSesion():
         seleccion = tablaSesiones.selection() #Guarda un array con la fila seleccionada
 
-        if not seleccion:  # Verifica que se haya seleccionado una sesion
-            print("Error: No se selecciono ninguna sesion")
+        if not seleccion:  # Verifica que se haya seleccionado una sesion en la lista
+            ventanaExitoError("Error: No se selecciono ninguna sesion", ventanaEdicion)
             return  # Termina la funcion aca
 
         sesion = tablaSesiones.item(seleccion[0], "values") #Guardamos los datos de la fila seleccionada
@@ -427,15 +434,14 @@ def abrirVentanaEditarSesion():
         entradaTiempo.pack(side="top", pady=5)
 
         def ejecucionEdicion(sesion):
-            nombre=sesion[0]
-            viejaSesion = [sesion[1], float(sesion[2]), float(sesion[3])]
-            nuevaSesion = [sesion[1],float(entradaDistancia.get()), float(entradaTiempo.get())]
-            modificar_sesion(nombre, viejaSesion, nuevaSesion)
-            for i in BDD:
-                for j in i["sesiones"]:
-                    if i["nombre"] == "Carlos Mendoza":
-                        print(j)
-
+            if validar_numero_positivo(entradaDistancia.get()) and validar_numero_positivo(entradaTiempo.get()):
+                nombre=sesion[0] #Almacenamos el nombre en la lista de la sesion indicada
+                viejaSesion = [sesion[1], float(sesion[2]), float(sesion[3])] #Guardamos los datos de la sesion indicada
+                nuevaSesion = [sesion[1],float(entradaDistancia.get()), float(entradaTiempo.get())] #Guardamos los datos tomados en los entry
+                modificar_sesion(nombre, viejaSesion, nuevaSesion)
+                ventanaExitoError("Se ha modificado correctamente la sesion de entrenamiento.", ventanaEditarSesion)
+            else:
+                ventanaExitoError("Ha ingresado una distancia o un tiempo invalido, vuelva a intentarlo.", ventanaEditarSesion)
         # Boton de editar
         btnEditar = Button(ventanaEditarSesion, text="Editar",command=lambda: ejecucionEdicion(sesion), font=("Arial", 12))
         btnEditar.pack(side="top", pady=5)
