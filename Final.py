@@ -5,7 +5,7 @@ from operator import truediv
 
 from customtkinter import *
 from tkinter import *
-from tkinter.ttk import Treeview
+from tkinter.ttk import Treeview, Style
 from datetime import datetime #Libreria utilizada para validar las fechas
 
 BDD = [
@@ -100,7 +100,7 @@ def buscar_por_nombre(nombre):
     return indice_atletas  # devuelve todos los atletas que tienen nombres parecidos
 
 
-def eliminar_entrenamientos(indice_atleta):
+def eliminar_entrenamientos(indice_atleta): #TODO: Hacer que funcione sin indice
     cantidad_eliminados = len(BDD[indice_atleta].sesiones)  # guardamos el largo de la lista de sesiones del atleta que seria la cantidad de sesiones que se van a borrar
     BDD[indice_atleta].sesiones = []  # vaciamos/borramos sus sesiones
     return {"Cantida de sesiones eliminadas": cantidad_eliminados}  # FALTARIA AGREGAR EL RANGO DE FECHAS
@@ -133,7 +133,7 @@ def record_distancia():  # Devuelve diccionario con nombre del atleta con la ses
     return (atletas_con_sesion_mas_grande)
 
 # --- MENCION DE HONOR ---
-def mencion_de_honor(umbral_km):
+def mencion_de_honor(umbral_km): #TODO: Revisar por que solo muestra los nombres sin apellido (chequearlo con la terminal)
     atletas_por_encima_de_umbral = []
     for atleta in BDD:
         while True:
@@ -208,6 +208,8 @@ def atleta_mas_veloz(umbral_km):
 
     return atleta_mas_rapido
 
+lista = calcular_velocidad("Carlos Mendoza")
+print(lista)
 
 # --- FUNCIONES DE VALIDACION DE DATOS ---
 
@@ -374,11 +376,19 @@ def abrirVentanaCargas():
 #Funcion para abrir la ventana de busqueda y edicion de una sesion de entrenamiento
 def abrirVentanaEditarSesion():
     ventanaEdicion = Toplevel(principal)
-    configEstiloVentanas(ventanaEdicion, "900x500", "Modificar sesiones de entrenamiento")
+    configEstiloVentanas(ventanaEdicion, "900x800", "Modificar sesiones de entrenamiento")
 
     entradaFecha = Entry(ventanaEdicion, width=30,
-                                        font=("Arial", 12))  # Le solicitamos al usuario la fecha que desea buscar
+                                        font=("Arial", 18))  # Le solicitamos al usuario la fecha que desea buscar
     entradaFecha.pack(side="top", pady=5)
+
+    # Estilizamos la tabla
+    estilo = Style()
+    estilo.theme_use("default") #Utilizado por incompatibilidades con windows
+    estilo.configure("Treeview", background="#9D6AE6", foreground="white", fieldbackground="#9D6AE6",
+                     rowheight=40, borderwidth=0, font=("Arial", 18)) #Configuramos el estilo de las columnas
+    estilo.configure("Treeview.Heading", background="#45098F", foreground="white",
+                        borderwidth=0, font=("Arial", 22)) #Configuramos el estilo de los encabezados
 
     tablaSesiones = Treeview(ventanaEdicion, columns=("nombre", "fecha", "distancia", "tiempo"),
                              show="headings")  # Creacion de instancia de tabla para mostrar las sesiones
@@ -386,11 +396,8 @@ def abrirVentanaEditarSesion():
     tablaSesiones.heading("#2", text="Fecha")
     tablaSesiones.heading("#3", text="Distancia")
     tablaSesiones.heading("#4", text="Tiempo")
-    tablaSesiones.pack(side="top", pady=5)
+    tablaSesiones.pack(side="top", pady=10)
 
-    #Estilizamos la tabla
-
-    tablaSesiones.configure()
 
     def buscarAtletas():  # Funcion para mostrar en la lista los entrenamientos realizados en la fecha indicada
         fecha = entradaFecha.get()  # Capturamos el contenido del input en el momento de apretar el boton
@@ -398,6 +405,7 @@ def abrirVentanaEditarSesion():
 
         if validar_fecha(fecha):
             listaAtletas = buscar_por_fecha(fecha)  # Utilizamos la funcion definida previamente
+            tablaSesiones.delete(*tablaSesiones.get_children()) #Borramos lo que haya en la tabla al momento de cargarla
             for atleta in listaAtletas:  # Accede a cada atleta de la lista que contiene los atletas con un entrenamiento en esa fecha
                 for sesion in atleta["sesiones"]:  # Accede a cada sesion de entrenamiento
                     if sesion[
@@ -417,15 +425,15 @@ def abrirVentanaEditarSesion():
 
         #Ejecutamos una nueva ventana estilo pop up para editar la sesion que elegimos
         ventanaEditarSesion = Toplevel(ventanaEdicion)
-        configEstiloVentanas(ventanaEditarSesion, "500x500", "Editar sesion")
+        configEstiloVentanas(ventanaEditarSesion, "600x400", "Editar sesion")
 
         # Etiquetas para identificar cada entrada
-        tituloDistancia = Label(ventanaEditarSesion, text="Ingrese la distancia recorrida en km (ej: 12.5): ", fg="white", bg="purple", width=50, font=("Arial", 12))
-        tituloTiempo = Label(ventanaEditarSesion, text="Ingrese el tiempo medido en minutos (ej: 150): ", fg="white", bg="purple", width=50, font=("Arial", 12))
+        tituloDistancia = Label(ventanaEditarSesion, text="Ingrese la distancia recorrida en km (ej: 12.5): ", fg="white", bg="purple", width=50, font=("Arial", 18))
+        tituloTiempo = Label(ventanaEditarSesion, text="Ingrese el tiempo medido en minutos (ej: 150): ", fg="white", bg="purple", width=50, font=("Arial", 18))
 
         # Entradas para una nueva sesion de entrenamiento
-        entradaDistancia = Entry(ventanaEditarSesion, width=30, font=("Arial", 12))
-        entradaTiempo = Entry(ventanaEditarSesion, width=30, font=("Arial", 12))
+        entradaDistancia = Entry(ventanaEditarSesion, width=30, font=("Arial", 18))
+        entradaTiempo = Entry(ventanaEditarSesion, width=30, font=("Arial", 18))
 
         # Apilamiento de entradas y sus titulos correspondientes
         tituloDistancia.pack(side="top", pady=10)
@@ -442,16 +450,18 @@ def abrirVentanaEditarSesion():
                 ventanaExitoError("Se ha modificado correctamente la sesion de entrenamiento.", ventanaEditarSesion)
             else:
                 ventanaExitoError("Ha ingresado una distancia o un tiempo invalido, vuelva a intentarlo.", ventanaEditarSesion)
+
         # Boton de editar
-        btnEditar = Button(ventanaEditarSesion, text="Editar",command=lambda: ejecucionEdicion(sesion), font=("Arial", 12))
-        btnEditar.pack(side="top", pady=5)
+        btnEditar = configBotonMenu(ventanaEditarSesion, "Editar", lambda:ejecucionEdicion(sesion))
+        btnEditar.pack(side="top", pady=10)
 
+    contenedor = Frame(ventanaEdicion, bg="purple")  # Definimos el contenedor para que los botones queden alineados
+    btnBuscarAtletas = configBotonMenu(contenedor, "Buscar", buscarAtletas)
+    btnEditarSesion = configBotonMenu(contenedor, "Editar", editarSesion)
 
-    btnBuscarAtletas = Button(ventanaEdicion, text="Buscar", command=buscarAtletas, font=("Arial", 12))
-    btnBuscarAtletas.pack(side="top", pady=5)
-
-    btnEditarSesion = Button(ventanaEdicion, text="Editar", command=lambda:editarSesion(), font=("Arial", 12))
-    btnEditarSesion.pack(side="top", pady=5)
+    contenedor.pack(pady=10)
+    btnBuscarAtletas.pack(side="left", padx=10)
+    btnEditarSesion.pack(side="left", padx=10)
 
 #Funcion para abrir la ventana donde se puede eliminar todos los entrenamientos de un atleta
 def abrirVentanaEliminarSesion():
@@ -467,7 +477,7 @@ def abrirVentanaEliminarSesion():
     def eliminarSesion():
         indice = buscar_por_nombre(nombre.get())
         print(indice)
-        eliminar_entrenamientos(indice) #TODO: No funciona, la funcion buscar por nombre no devuelve un indice sino un diccionario
+        eliminar_entrenamientos(indice)
 
     btnEliminar = Button(ventanaEliminacion, text="Eliminar sesiones", fg="white", bg="purple", font=("Arial", 16),
               command=eliminarSesion)
@@ -477,26 +487,39 @@ def abrirVentanaEliminarSesion():
 #Funcion que despliega un menu donde se pueden obtener los reportes y estadisticas buscados
 def abrirVentanaReportes():
     ventanaReportes = Toplevel(principal)
-    configEstiloVentanas(ventanaReportes, "400x500","Reportes y estadisticas")
+    configEstiloVentanas(ventanaReportes, "500x500","Reportes y estadisticas")
 
     #Configuraremos los botones para acceder a cada visualizacion solicitada
     #Reporte volumen total
     def abrirVolumen():
         ventanaVolumenes = Toplevel(ventanaReportes)
-        configEstiloVentanas(ventanaVolumenes, "500x500", "Volumen de distancia por atleta")
+        configEstiloVentanas(ventanaVolumenes, "500x700", "Volumen de distancia por atleta")
+
+        # Estilizamos la tabla
+        estilo = Style()
+        estilo.theme_use("default")  # Utilizado por incompatibilidades con windows
+        estilo.configure("Treeview", background="#9D6AE6", foreground="white", fieldbackground="#9D6AE6",
+                         rowheight=40, borderwidth=0, font=("Arial", 18))  # Configuramos el estilo de las columnas
+        estilo.configure("Treeview.Heading", background="#45098F", foreground="white",
+                         borderwidth=0, font=("Arial", 22))  # Configuramos el estilo de los encabezados
+
         tabla = Treeview(ventanaVolumenes, columns=("nombre", "volumen_total"),
                              show="headings")  # Creacion de instancia de tabla para mostrar las sesiones
         tabla.heading("#1", text="Nombre")
-        tabla.heading("#2", text="Voluemn Total")
+        tabla.heading("#2", text="Voluemen Total")
         tabla.pack(side="top", pady=5)
-        listaVolumenes = volumen_total()
+
+        listaVolumenes = volumen_total() #Obtenemos el listado de volumen utilizando la funcion correspondiente
         for atleta in listaVolumenes:
             tabla.insert("", END, values=(atleta["nombre"], atleta["volumen_total"]))
+
+        btnCerrar = configBotonMenu(ventanaVolumenes, "Cerrar", ventanaVolumenes.destroy)
+        btnCerrar.pack(pady=20)
 
     #Reporte de records de distancia
     def abrirRecordDistancia():
         ventanaDistancias = Toplevel(ventanaReportes)
-        configEstiloVentanas(ventanaDistancias, "500x500", "Atletas con el record de distancia recorrida")
+        configEstiloVentanas(ventanaDistancias, "500x700", "Atletas con el record de distancia recorrida")
         tabla = Treeview(ventanaDistancias, columns=("nombre", "fecha"),
                          show="headings")  # Creacion de instancia de tabla para mostrar las sesiones
         tabla.heading("#1", text="Nombre")
@@ -506,35 +529,86 @@ def abrirVentanaReportes():
         for atleta in listaRecord:
             tabla.insert("", END, values=(atleta["nombre"], atleta["fecha"]))
 
+        btnCerrar = configBotonMenu(ventanaDistancias, "Cerrar", ventanaDistancias.destroy)
+        btnCerrar.pack(pady=20)
+
     #Reporte de mencion de honor (atletas con sesiones mayores a un umbral)
     def abrirMencionHonor():
         ventanaHonor = Toplevel(ventanaReportes)
-        configEstiloVentanas(ventanaHonor, "500x500", "Mencion de Honor")
+        configEstiloVentanas(ventanaHonor, "550x700", "Mencion de Honor")
 
-        titulo = Label(ventanaHonor, text="Ingrese el umbral que desea definir en km: ", fg="white", bg="purple", width=50, font=("Arial", 12))
-        umbral = Entry(ventanaHonor, width=20, font=("Arial", 12))
-        titulo.pack(side="top", pady=5)
-        umbral.pack(side="top", pady=5)
+        # Estilizamos la tabla
+        estilo = Style()
+        estilo.theme_use("default")  # Utilizado por incompatibilidades con windows
+        estilo.configure("Treeview", background="#9D6AE6", foreground="white", fieldbackground="#9D6AE6",
+                         rowheight=40, borderwidth=0, font=("Arial", 18))  # Configuramos el estilo de las columnas
+        estilo.configure("Treeview.Heading", background="#45098F", foreground="white",
+                         borderwidth=0, font=("Arial", 22))  # Configuramos el estilo de los encabezados
 
-        lista = Listbox(ventanaHonor, height=15, width=50)
-        lista.pack(side="top", pady=5)
+        tabla = Treeview(ventanaHonor, columns="nombre",
+                         show="headings")  # Creacion de instancia de tabla para mostrar las sesiones
+        tabla.heading("#1", text="Nombre")
+        tabla.column("#1", width=400)
+        tabla.pack(side="top", pady=5)
 
         def buscarMencion():
             umbral_km = umbral.get()
             listaMencion = mencion_de_honor(float(umbral_km))
+            tabla.delete(*tabla.get_children()) #Borramos lo que habia previamente
             for atleta in listaMencion:
-                lista.insert(END, atleta)
+                tabla.insert("", END, value=atleta)
 
-        btnBuscar = Button(ventanaHonor, text="Buscar", command=buscarMencion)
-        btnBuscar.pack(side="top", pady=5)
+        contenedor = Frame(ventanaHonor, bg="purple")
+        btnBuscar = configBotonMenu(contenedor, "Buscar", buscarMencion)
+        titulo = Label(ventanaHonor, text="Ingrese el umbral que desea definir en km: ", fg="white", bg="purple",
+                       width=50, font=("Arial", 18))
+        umbral = Entry(contenedor, width=20, font=("Arial", 20))
+
+        titulo.pack(side="top", pady=10)
+        contenedor.pack(pady=10)
+        umbral.pack(side="left", padx=10)
+        btnBuscar.pack(side="left", padx=5)
+
+    def abrirCalcularVel():
+        ventanaCalcular = Toplevel(ventanaReportes)
+        configEstiloVentanas(ventanaCalcular, "500x700", "Calcular velocidad")
+
+        tabla = Treeview(ventanaCalcular, columns=("numero", "km/h", "m/s"),
+                         show="headings")  # Creacion de instancia de tabla para mostrar las sesiones
+        tabla.heading("#1", text="Numero")
+        tabla.heading("#2", text="Km/h")
+        tabla.heading("#3", text="m/s")
+        tabla.pack(side="top", pady=5)
+
+        def calcularSesiones():
+            nombre = nombreEntrada.get()
+            listaSesiones = calcular_velocidad(nombre)
+            tabla.delete(*tabla.get_children())  # Borramos lo que habia previamente
+            for sesion in listaSesiones:
+                tabla.insert("", END, #TODO: Revisar por que no anda (FRANCO)
+                             values=(sesion["registro_sesiones"], sesion["promedio_kmph"], sesion["promedio_mps"]))
+
+        contenedor = Frame(ventanaCalcular, bg="purple")
+        btnBuscar = configBotonMenu(contenedor, "Buscar", calcularSesiones)
+        titulo = Label(ventanaCalcular, text="Ingrese el nombre del atleta que quiere calcular sus sesiones: ", fg="white",
+                       bg="purple",
+                       width=50, font=("Arial", 18))
+        nombreEntrada = Entry(contenedor, width=20, font=("Arial", 20))
+
+        titulo.pack(side="top", pady=10)
+        contenedor.pack(pady=10)
+        nombreEntrada.pack(side="left", padx=10)
+        btnBuscar.pack(side="left", padx=5)
 
 
-    btnVolumen = Button(ventanaReportes, text="Volumen", command=abrirVolumen)
+    btnVolumen = configBotonMenu(ventanaReportes, "Volumen total acumulado", abrirVolumen)
     btnVolumen.pack(side="top", pady=10)
-    btnRecord = Button(ventanaReportes, text="Record Distancia", command=abrirRecordDistancia)
+    btnRecord = configBotonMenu(ventanaReportes, "Record de distancia", abrirRecordDistancia)
     btnRecord.pack(side="top", pady=10)
-    btnMencion = Button(ventanaReportes, text="Mencion de Honor", command=abrirMencionHonor)
+    btnMencion = configBotonMenu(ventanaReportes, "Mencion de Honor", abrirMencionHonor)
     btnMencion.pack(side="top", pady=10)
+    btnCalculo = configBotonMenu(ventanaReportes, "Calcular velocidad", abrirCalcularVel)
+    btnCalculo.pack(side="top", pady=10)
 
 #Funcion que cierra el menu principal
 def cerrarMenu():
