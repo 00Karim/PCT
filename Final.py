@@ -92,13 +92,6 @@ def modificar_sesion(nombre_atleta, sesion_vieja, nueva_sesion):
 
 
 # --- ELIMINAR ENTRENAMIENTOS ---
-def buscar_por_nombre(nombre):
-    indice_atletas = []
-    for j in BDD:  # ... basicamente, el usuario ve todos los atletas con nombres parecidas y elige al que le quiere borrar los entrenamientos
-        if j["nombre"] == nombre:
-            indice_atletas.append(j)  # agregamos la posicion del atleta que tiene esa fecha en sus entrenamientos
-    return indice_atletas  # devuelve todos los atletas que tienen nombres parecidos
-
 
 def eliminar_entrenamientos(nombre): #TODO: Hacer que funcione sin indice
     for i, atleta in enumerate(BDD):
