@@ -100,9 +100,11 @@ def buscar_por_nombre(nombre):
     return indice_atletas  # devuelve todos los atletas que tienen nombres parecidos
 
 
-def eliminar_entrenamientos(indice_atleta): #TODO: Hacer que funcione sin indice
-    cantidad_eliminados = len(BDD[indice_atleta].sesiones)  # guardamos el largo de la lista de sesiones del atleta que seria la cantidad de sesiones que se van a borrar
-    BDD[indice_atleta].sesiones = []  # vaciamos/borramos sus sesiones
+def eliminar_entrenamientos(nombre): #TODO: Hacer que funcione sin indice
+    for i, atleta in enumerate(BDD):
+        if atleta["nombre"] == nombre:
+            cantidad_eliminados = len(BDD[i]["sesiones"])  # guardamos el largo de la lista de sesiones del atleta que seria la cantidad de sesiones que se van a borrar
+            atleta["sesiones"] = []  # vaciamos/borramos sus sesiones
     return {"Cantida de sesiones eliminadas": cantidad_eliminados}  # FALTARIA AGREGAR EL RANGO DE FECHAS
 
 
