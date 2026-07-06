@@ -104,8 +104,37 @@ def eliminar_entrenamientos(nombre): #TODO: Hacer que funcione sin indice
     for i, atleta in enumerate(BDD):
         if atleta["nombre"] == nombre:
             cantidad_eliminados = len(BDD[i]["sesiones"])  # guardamos el largo de la lista de sesiones del atleta que seria la cantidad de sesiones que se van a borrar
-            atleta["sesiones"] = []  # vaciamos/borramos sus sesiones
-    return {"Cantida de sesiones eliminadas": cantidad_eliminados}  # FALTARIA AGREGAR EL RANGO DE FECHAS
+            # si tiene sesiones empezamos el proceso de eliminacion
+            if cantidad_eliminados > 0:
+
+                # inicializamos las variables con la primera sesión para empezar a comparar fechas para determinar el rango
+                primera_fecha = atleta["sesiones"][0]
+                dt_min = datetime.strptime(primera_fecha, "%d-%m-%Y")
+                dt_max = datetime.strptime(primera_fecha, "%d-%m-%Y")
+
+                fecha_minima_str = primera_fecha
+                fecha_maxima_str = primera_fecha
+
+                # recorremos las sesiones que quedan del atleta
+                for sesion in atleta["sesiones"]:
+                    fecha_actual_texto = sesion[0]
+                    # convertimos la fecha actual a un objeto datetime para poder comparar con la fecha max y min
+                    dt_actual = datetime.strptime(fecha_actual_texto, "%d-%m-%Y")
+
+                    # si la fecha actual es mas antigua que la fecha mas antigua entonces esa se vuelve la fecha min
+                    if dt_actual < dt_min:
+                        dt_min = dt_actual
+                        fecha_minima_str = fecha_actual_texto  # Guardamos el texto original
+
+                    # si la fecha actual es mas nueva que la fecha mas nueva entonces esa se vuelve la fecha max
+                    if dt_actual > dt_max:
+                        dt_max = dt_actual
+                        fecha_maxima_str = fecha_actual_texto
+            else:
+                break # si no tenia sesiones salimos del for loop
+        atleta["sesiones"] = []  # vaciamos/borramos sus sesiones
+
+    return {"sesiones_eliminadas": cantidad_eliminados, "fecha_min": fecha_minima_str,  "fecha_max": fecha_maxima_str}  # FALTARIA AGREGAR EL RANGO DE FECHAS
 
 
 # --- VOLUMEN TOTAL ACUMULADO ---
