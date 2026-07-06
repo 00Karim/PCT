@@ -101,7 +101,7 @@ def eliminar_entrenamientos(nombre): #TODO: Hacer que funcione sin indice
             if cantidad_eliminados > 0:
 
                 # inicializamos las variables con la primera sesión para empezar a comparar fechas para determinar el rango
-                primera_fecha = atleta["sesiones"][0]
+                primera_fecha = atleta["sesiones"][0][0]
                 dt_min = datetime.strptime(primera_fecha, "%d-%m-%Y")
                 dt_max = datetime.strptime(primera_fecha, "%d-%m-%Y")
 
@@ -284,7 +284,8 @@ def configBotonMenu(ventana, texto, comando):
                 corner_radius=6,
                 height=40)
     return btn
-
+if __name__ == "__main__":
+    print(eliminar_entrenamientos("Carlos Mendoza"))
 principal = CTk()  # Inicializacion de una instancia de la ventana principal
 configEstiloVentanas(principal, "500x500", "Gestor Rendimiento de Atletas")  # Seteo de la ventana del menu principal
 
