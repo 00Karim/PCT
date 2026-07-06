@@ -573,7 +573,7 @@ def abrirVentanaReportes():
                 listaMencion = mencion_de_honor(float(umbral_km))
                 tabla.delete(*tabla.get_children()) #Borramos lo que habia previamente
                 for atleta in listaMencion:
-                    tabla.insert("", END, value=atleta)
+                    tabla.insert("", END, value=(atleta,))
             else:
                 ventanaExitoError("Ha ingresado un umbral invalido, vuelva a intentar.", ventanaHonor)
 
