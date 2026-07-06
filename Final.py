@@ -49,7 +49,7 @@ BDD = [
         ]
     },
     {
-        "nombre": "Lucas Benítez",
+        "nombre": "Lucas Benitez",
         "sesiones": [
             ["08-04-2026", 14.0, 65.0],
             ["22-04-2026", 16.5, 78.2]
@@ -208,8 +208,7 @@ def atleta_mas_veloz(umbral_km):
 
     return atleta_mas_rapido
 
-lista = calcular_velocidad("Carlos Mendoza")
-print(lista)
+
 
 # --- FUNCIONES DE VALIDACION DE DATOS ---
 
@@ -239,13 +238,6 @@ def validar_texto(texto):
         #Con isalpha, comprobamos si son letras, cualquier otro tipo devolvera false
         return texto.replace(" ", "").isalpha()
 
-
-#if __name__ == "__main__":
-#    for i in BDD:
-#        print(i["nombre"])
-#    registrar_atleta("Prueba Pruebosa")
-#    for i in BDD:
-#        print(i["nombre"])
 
 #--- GRAFICOS INTERFAZ DE USUARIO ---
 
@@ -487,7 +479,7 @@ def abrirVentanaEliminarSesion():
 #Funcion que despliega un menu donde se pueden obtener los reportes y estadisticas buscados
 def abrirVentanaReportes():
     ventanaReportes = Toplevel(principal)
-    configEstiloVentanas(ventanaReportes, "500x500","Reportes y estadisticas")
+    configEstiloVentanas(ventanaReportes, "500x550","Reportes y estadisticas")
 
     #Configuraremos los botones para acceder a cada visualizacion solicitada
     #Reporte volumen total
@@ -553,10 +545,13 @@ def abrirVentanaReportes():
 
         def buscarMencion():
             umbral_km = umbral.get()
-            listaMencion = mencion_de_honor(float(umbral_km))
-            tabla.delete(*tabla.get_children()) #Borramos lo que habia previamente
-            for atleta in listaMencion:
-                tabla.insert("", END, value=atleta)
+            if validar_numero_positivo(umbral_km):
+                listaMencion = mencion_de_honor(float(umbral_km))
+                tabla.delete(*tabla.get_children()) #Borramos lo que habia previamente
+                for atleta in listaMencion:
+                    tabla.insert("", END, value=atleta)
+            else:
+                ventanaExitoError("Ha ingresado un umbral invalido, vuelva a intentar.", ventanaHonor)
 
         contenedor = Frame(ventanaHonor, bg="purple")
         btnBuscar = configBotonMenu(contenedor, "Buscar", buscarMencion)
@@ -571,33 +566,94 @@ def abrirVentanaReportes():
 
     def abrirCalcularVel():
         ventanaCalcular = Toplevel(ventanaReportes)
-        configEstiloVentanas(ventanaCalcular, "500x700", "Calcular velocidad")
+        configEstiloVentanas(ventanaCalcular, "700x700", "Calcular velocidad")
 
-        tabla = Treeview(ventanaCalcular, columns=("numero", "km/h", "m/s"),
+        titulo = Label(ventanaCalcular, text="Ingrese el nombre del atleta que quiere calcular sus sesiones: ",
+                       fg="white",
+                       bg="purple",
+                       width=50, font=("Arial", 18))
+        nombreEntrada = Entry(ventanaCalcular, width=20, font=("Arial", 20))
+
+        titulo.pack(pady=10)
+        nombreEntrada.pack(pady=5)
+
+        # Estilizamos la tabla
+        estilo = Style()
+        estilo.theme_use("default")  # Utilizado por incompatibilidades con windows
+        estilo.configure("Treeview", background="#9D6AE6", foreground="white", fieldbackground="#9D6AE6",
+                         rowheight=30, borderwidth=0, font=("Arial", 18))  # Configuramos el estilo de las columnas
+        estilo.configure("Treeview.Heading", background="#45098F", foreground="white",
+                         borderwidth=0, font=("Arial", 22))  # Configuramos el estilo de los encabezados
+
+        tabla = Treeview(ventanaCalcular, columns=("km/h", "m/s"),
                          show="headings")  # Creacion de instancia de tabla para mostrar las sesiones
-        tabla.heading("#1", text="Numero")
-        tabla.heading("#2", text="Km/h")
-        tabla.heading("#3", text="m/s")
-        tabla.pack(side="top", pady=5)
+        tabla.heading("#1", text="Km/h")
+        tabla.heading("#2", text="m/s")
+        tabla.pack(side="top", pady=10)
 
         def calcularSesiones():
             nombre = nombreEntrada.get()
-            listaSesiones = calcular_velocidad(nombre)
-            tabla.delete(*tabla.get_children())  # Borramos lo que habia previamente
-            for sesion in listaSesiones:
-                tabla.insert("", END, #TODO: Revisar por que no anda (FRANCO)
-                             values=(sesion["registro_sesiones"], sesion["promedio_kmph"], sesion["promedio_mps"]))
+            if validar_texto(nombre):
+                listaSesiones = calcular_velocidad(nombre)
+                tabla.delete(*tabla.get_children())  # Borramos lo que habia previamente
+                for sesion in listaSesiones[0]:
+                    tabla.insert("", END, values=(sesion["vel_kmph"], sesion["vel_mps"]))
+            else:
+                ventanaExitoError("Error: Ha ingresado un nombre invalido, vuelva a intentarlo.", ventanaCalcular)
+
+        def obtenerPromedio():
+            nombre = nombreEntrada.get()
+            if validar_texto(nombre):
+                ventanaPromedio = Toplevel(ventanaCalcular)
+                configEstiloVentanas(ventanaPromedio, "550x300", "Calculo de velocidad promedio")
+
+                registro = calcular_velocidad(nombre)
+                nombreL = Label(ventanaPromedio, text=f"Nombre: {nombre}", fg="white", bg="purple", width=50, font=("Arial", 18))
+                promedio_kmh = Label(ventanaPromedio, text=f"Promedio en km/h: {registro[1]}", fg="white", bg="purple", width=50, font=("Arial", 18))
+                promedio_ms = Label(ventanaPromedio, text=f"Promedio en m/s: {registro[2]}", fg="white", bg="purple", width=50, font=("Arial", 18))
+
+                nombreL.pack(pady=10)
+                promedio_kmh.pack(side="top", pady=10)
+                promedio_ms.pack(side="top", pady=10)
+            else:
+                ventanaExitoError("Error: Ha ingresado un nombre invalido, vuelva a intentarlo.", ventanaCalcular)
 
         contenedor = Frame(ventanaCalcular, bg="purple")
-        btnBuscar = configBotonMenu(contenedor, "Buscar", calcularSesiones)
-        titulo = Label(ventanaCalcular, text="Ingrese el nombre del atleta que quiere calcular sus sesiones: ", fg="white",
-                       bg="purple",
+        btnCalcular = configBotonMenu(contenedor, "Obtener velocidades", calcularSesiones)
+        btnPromedio = configBotonMenu(contenedor, "Obtener promedio", obtenerPromedio)
+
+        contenedor.pack(pady=10)
+        btnCalcular.pack(side="left", padx=5)
+        btnPromedio.pack(side="left", padx=5)
+
+    def abrirAtletaVeloz():
+        ventanaAtleta = Toplevel(ventanaReportes)
+        configEstiloVentanas(ventanaAtleta, "600x300", "Obtener atleta mas veloz")
+
+        def obtenerVeloz(num):
+            if validar_numero_positivo(num):
+                ventanaVeloz = Toplevel(ventanaAtleta)
+                configEstiloVentanas(ventanaVeloz, "550x300", "Atleta mas veloz encontrado")
+
+                atleta = atleta_mas_veloz(num)
+                nombreL = Label(ventanaVeloz, text=f"Nombre: {atleta["nombre"]}", fg="white", bg="purple", width=50,
+                                font=("Arial", 18))
+                velocidad = Label(ventanaVeloz, text=f"Velocidad: {atleta["velocidad"]}", fg="white", bg="purple",
+                                     width=50, font=("Arial", 18))
+                nombreL.pack(pady=10)
+                velocidad.pack(pady=10)
+            else:
+                ventanaExitoError("Error: Ha ingresado un minimo invalido, vuelva a intentarlo.", ventanaAtleta)
+
+        contenedor = Frame(ventanaAtleta, bg="purple")
+        titulo = Label(ventanaAtleta, text="Ingrese el umbral que desea definir en km: ", fg="white", bg="purple",
                        width=50, font=("Arial", 18))
-        nombreEntrada = Entry(contenedor, width=20, font=("Arial", 20))
+        umbral = Entry(contenedor, width=20, font=("Arial", 20))
+        btnBuscar = configBotonMenu(contenedor, "Buscar", lambda: obtenerVeloz(float(umbral.get())))
 
         titulo.pack(side="top", pady=10)
         contenedor.pack(pady=10)
-        nombreEntrada.pack(side="left", padx=10)
+        umbral.pack(side="left", padx=10)
         btnBuscar.pack(side="left", padx=5)
 
 
@@ -609,6 +665,8 @@ def abrirVentanaReportes():
     btnMencion.pack(side="top", pady=10)
     btnCalculo = configBotonMenu(ventanaReportes, "Calcular velocidad", abrirCalcularVel)
     btnCalculo.pack(side="top", pady=10)
+    btnVeloz = configBotonMenu(ventanaReportes, "Atleta mas veloz", abrirAtletaVeloz)
+    btnVeloz.pack(side="top", pady=10)
 
 #Funcion que cierra el menu principal
 def cerrarMenu():
