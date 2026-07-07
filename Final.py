@@ -196,6 +196,8 @@ def calcular_velocidad(nombre_atleta):
         velocidad_en_mps = (sesion[1] * 1000) / (sesion[2] * 60)
         registro_sesiones.append(
             {"numero_sesion": numero_sesion, "vel_kmph": velocidad_en_kmph, "vel_mps": velocidad_en_mps})
+    velocidad_en_kmph = 0 # ponemos las variables nuevamente en cero para usarlas para calcular el total
+    velocidad_en_mps = 0
     for registro_sesion in registro_sesiones:  # calculamos el total de velocidades para despues sacar el promedio
         velocidad_en_kmph += registro_sesion["vel_kmph"]
         velocidad_en_mps += registro_sesion["vel_mps"]
