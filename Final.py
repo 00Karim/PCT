@@ -18,7 +18,7 @@ BDD = [
         ]
     },
     {
-        "nombre": "Sofía Rodríguez",
+        "nombre": "Sofia Rodriguez",
         "sesiones": [
             ["02-04-2026", 8.0, 40.0],
             ["09-04-2026", 8.5, 41.2],
@@ -93,7 +93,11 @@ def modificar_sesion(nombre_atleta, sesion_vieja, nueva_sesion):
 
 # --- ELIMINAR ENTRENAMIENTOS ---
 
-def eliminar_entrenamientos(nombre): #TODO: Hacer que funcione sin indice
+def eliminar_entrenamientos(nombre):
+    cantidad_eliminados = 0
+    fecha_minima_str = ""
+    fecha_maxima_str = ""
+
     for i, atleta in enumerate(BDD):
         if atleta["nombre"] == nombre:
             cantidad_eliminados = len(BDD[i]["sesiones"])  # guardamos el largo de la lista de sesiones del atleta que seria la cantidad de sesiones que se van a borrar
@@ -123,9 +127,10 @@ def eliminar_entrenamientos(nombre): #TODO: Hacer que funcione sin indice
                     if dt_actual > dt_max:
                         dt_max = dt_actual
                         fecha_maxima_str = fecha_actual_texto
-            else:
-                break # si no tenia sesiones salimos del for loop
-        atleta["sesiones"] = []  # vaciamos/borramos sus sesiones
+
+            atleta["sesiones"] = []  # vaciamos/borramos sus sesiones
+
+            break
 
     return {"sesiones_eliminadas": cantidad_eliminados, "fecha_min": fecha_minima_str,  "fecha_max": fecha_maxima_str}  # FALTARIA AGREGAR EL RANGO DE FECHAS
 
@@ -232,8 +237,6 @@ def atleta_mas_veloz(umbral_km):
 
     return atleta_mas_rapido
 
-
-
 # --- FUNCIONES DE VALIDACION DE DATOS ---
 
 def validar_fecha(fecha):
@@ -284,8 +287,8 @@ def configBotonMenu(ventana, texto, comando):
                 corner_radius=6,
                 height=40)
     return btn
-if __name__ == "__main__":
-    print(eliminar_entrenamientos("Carlos Mendoza"))
+
+
 principal = CTk()  # Inicializacion de una instancia de la ventana principal
 configEstiloVentanas(principal, "500x500", "Gestor Rendimiento de Atletas")  # Seteo de la ventana del menu principal
 
@@ -483,23 +486,39 @@ def abrirVentanaEditarSesion():
 #Funcion para abrir la ventana donde se puede eliminar todos los entrenamientos de un atleta
 def abrirVentanaEliminarSesion():
     ventanaEliminacion = Toplevel(principal)
-    configEstiloVentanas(ventanaEliminacion, "Eliminar sesion")
+    configEstiloVentanas(ventanaEliminacion, "600x350" , "Eliminar sesion")
 
     titulo = Label(ventanaEliminacion, text="Ingrese el nombre del atleta que desea eliminar sus sesiones: ",
-                   fg="white", bg="purple", font=("Arial", 12))
-    nombre = Entry(ventanaEliminacion)
+                   fg="white", wraplength=550 , bg="purple", font=("Arial", 18))
+    nombreEntrada = Entry(ventanaEliminacion, width=20, font=("Arial", 20))
     titulo.pack(side="top", pady=10)
-    nombre.pack(side="top", pady=5)
+    nombreEntrada.pack(side="top", pady=5)
 
     def eliminarSesion():
-        indice = buscar_por_nombre(nombre.get())
-        print(indice)
-        eliminar_entrenamientos(indice)
+        nombre = nombreEntrada.get()
+        if validar_texto(nombre):
+            ventanaSesionEliminada = Toplevel(ventanaEliminacion)
+            configEstiloVentanas(ventanaSesionEliminada, "700x400", "Sesiones eliminadas")
 
-    btnEliminar = Button(ventanaEliminacion, text="Eliminar sesiones", fg="white", bg="purple", font=("Arial", 16),
-              command=eliminarSesion)
+            reporte = eliminar_entrenamientos(nombre)
+            nombreL = Label(ventanaSesionEliminada, text=f"Nombre: {nombre}", fg="white", bg="purple", width=50,
+                            font=("Arial", 18))
+            cantidad_sesiones = Label(ventanaSesionEliminada, text=f"La cantidad de sesiones eliminadas es de: {reporte["sesiones_eliminadas"]}",
+                                      fg="white", bg="purple", width=50, font=("Arial", 18))
+            rango_fechas = Label(ventanaSesionEliminada, text=f"El rango de fechas eliminadas es desde: {reporte["fecha_min"]}, hasta: {reporte["fecha_max"]}"
+                                 , fg="white", bg="purple", wraplength=650 , width=50, font=("Arial", 18))
 
-    btnEliminar.pack(side="top", pady=5)
+            nombreL.pack(pady=10)
+            cantidad_sesiones.pack(side="top", pady=10)
+            rango_fechas.pack(side="top", pady=10)
+            btnCerrar = configBotonMenu(ventanaSesionEliminada, "Cerrar", ventanaSesionEliminada.destroy)
+            btnCerrar.pack(pady=20)
+        else:
+            ventanaExitoError("Error: Ha ingresado un nombre invalido, vuelva a intentarlo.", ventanaEliminacion)
+
+    btnEliminar = configBotonMenu(ventanaEliminacion, "Eliminar sesiones", eliminarSesion)
+
+    btnEliminar.pack(side="top", pady=10)
 
 #Funcion que despliega un menu donde se pueden obtener los reportes y estadisticas buscados
 def abrirVentanaReportes():
@@ -630,7 +649,7 @@ def abrirVentanaReportes():
             nombre = nombreEntrada.get()
             if validar_texto(nombre):
                 ventanaPromedio = Toplevel(ventanaCalcular)
-                configEstiloVentanas(ventanaPromedio, "550x300", "Calculo de velocidad promedio")
+                configEstiloVentanas(ventanaPromedio, "550x400", "Calculo de velocidad promedio")
 
                 registro = calcular_velocidad(nombre)
                 nombreL = Label(ventanaPromedio, text=f"Nombre: {nombre}", fg="white", bg="purple", width=50, font=("Arial", 18))
@@ -640,6 +659,8 @@ def abrirVentanaReportes():
                 nombreL.pack(pady=10)
                 promedio_kmh.pack(side="top", pady=10)
                 promedio_ms.pack(side="top", pady=10)
+                btnCerrar = configBotonMenu(ventanaPromedio, "Cerrar", ventanaPromedio.destroy)
+                btnCerrar.pack(pady=20)
             else:
                 ventanaExitoError("Error: Ha ingresado un nombre invalido, vuelva a intentarlo.", ventanaCalcular)
 
@@ -658,7 +679,7 @@ def abrirVentanaReportes():
         def obtenerVeloz(num):
             if validar_numero_positivo(num):
                 ventanaVeloz = Toplevel(ventanaAtleta)
-                configEstiloVentanas(ventanaVeloz, "550x300", "Atleta mas veloz encontrado")
+                configEstiloVentanas(ventanaVeloz, "550x350", "Atleta mas veloz encontrado")
 
                 atleta = atleta_mas_veloz(num)
                 nombreL = Label(ventanaVeloz, text=f"Nombre: {atleta["nombre"]}", fg="white", bg="purple", width=50,
@@ -667,6 +688,8 @@ def abrirVentanaReportes():
                                      width=50, font=("Arial", 18))
                 nombreL.pack(pady=10)
                 velocidad.pack(pady=10)
+                btnCerrar = configBotonMenu(ventanaVeloz, "Cerrar", ventanaVeloz.destroy)
+                btnCerrar.pack(pady=20)
             else:
                 ventanaExitoError("Error: Ha ingresado un minimo invalido, vuelva a intentarlo.", ventanaAtleta)
 
