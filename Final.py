@@ -263,12 +263,17 @@ def validar_numero_positivo(num):
 def validar_texto(texto):
         #Con replace, eliminamos los espacios para que quede una unica cadena, ej: leo messi = leomessi
         #Con isalpha, comprobamos si son letras, cualquier otro tipo devolvera false
-        if (texto.replace(" ", "").isalpha() == True):
-            for i in BDD:
-                if texto.lower() == i["nombre"].lower():
-                    return True
-        else:
-            return False
+        return texto.replace(" ", "").isalpha() == True
+
+def validar_atleta(nombre):
+    # Con replace, eliminamos los espacios para que quede una unica cadena, ej: leo messi = leomessi
+    # Con isalpha, comprobamos si son letras, cualquier otro tipo devolvera false
+    if (nombre.replace(" ", "").isalpha() == True):
+        for i in BDD:
+            if nombre.lower() == i["nombre"].lower():
+                return True
+    else:
+        return False
 
 
 #--- GRAFICOS INTERFAZ DE USUARIO ---
@@ -373,7 +378,7 @@ def abrirVentanaCargas():
         tiempo = entradaTiempo.get()
 
         #En cada bucle if, validamos si los datos ingresados son validos
-        if validar_texto(nombre):
+        if validar_atleta(nombre):
             if validar_fecha(fecha):
                 sesion.append(fecha) #Como se ingreso una fecha valida, se agrega al array sesion
                 if validar_numero_positivo(distancia):
@@ -506,7 +511,7 @@ def abrirVentanaEliminarSesion():
 
     def eliminarSesion():
         nombre = nombreEntrada.get()
-        if validar_texto(nombre):
+        if validar_atleta(nombre):
             ventanaSesionEliminada = Toplevel(ventanaEliminacion)
             configEstiloVentanas(ventanaSesionEliminada, "700x400", "Sesiones eliminadas")
 
@@ -647,7 +652,7 @@ def abrirVentanaReportes():
 
         def calcularSesiones():
             nombre = nombreEntrada.get()
-            if validar_texto(nombre):
+            if validar_atleta(nombre):
                 listaSesiones = calcular_velocidad(nombre)
                 tabla.delete(*tabla.get_children())  # Borramos lo que habia previamente
                 for sesion in listaSesiones[0]:
