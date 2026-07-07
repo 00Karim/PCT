@@ -196,14 +196,14 @@ def calcular_velocidad(nombre_atleta):
         velocidad_en_mps = (sesion[1] * 1000) / (sesion[2] * 60)
         registro_sesiones.append(
             {"numero_sesion": numero_sesion, "vel_kmph": velocidad_en_kmph, "vel_mps": velocidad_en_mps})
-    velocidad_en_kmph = 0 # ponemos las variables nuevamente en cero para usarlas para calcular el total
-    velocidad_en_mps = 0
+    total_en_kmph = 0 # estas variables van a servir para acumular el total de velocidad de las sesiones para calcular el promedio
+    total_en_mps = 0
     for registro_sesion in registro_sesiones:  # calculamos el total de velocidades para despues sacar el promedio
-        velocidad_en_kmph += registro_sesion["vel_kmph"]
-        velocidad_en_mps += registro_sesion["vel_mps"]
+        total_en_kmph += registro_sesion["vel_kmph"]
+        total_en_mps += registro_sesion["vel_mps"]
     if numero_sesion != 0:  # si no tiene sesiones entonces no hacemos las divisiones asi no nos da error
-        promedio_kmph = velocidad_en_kmph / numero_sesion  # sacamos los promedios con la velocidad total y la cantidad de sesiones que tiene el atleta
-        promedio_mps = velocidad_en_mps / numero_sesion
+        promedio_kmph = total_en_kmph / numero_sesion  # sacamos los promedios con la velocidad total y la cantidad de sesiones que tiene el atleta
+        promedio_mps = total_en_mps / numero_sesion
     return ([registro_sesiones, promedio_kmph, promedio_mps])
 
 def atleta_mas_veloz(umbral_km):
