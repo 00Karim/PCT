@@ -263,7 +263,12 @@ def validar_numero_positivo(num):
 def validar_texto(texto):
         #Con replace, eliminamos los espacios para que quede una unica cadena, ej: leo messi = leomessi
         #Con isalpha, comprobamos si son letras, cualquier otro tipo devolvera false
-        return texto.replace(" ", "").isalpha()
+        if (texto.replace(" ", "").isalpha() == True):
+            for i in BDD:
+                if texto.lower() == i["nombre"].lower():
+                    return True
+        else:
+            return False
 
 
 #--- GRAFICOS INTERFAZ DE USUARIO ---
@@ -400,6 +405,11 @@ def abrirVentanaEditarSesion():
 
     entradaFecha = Entry(ventanaEdicion, width=30,
                                         font=("Arial", 18))  # Le solicitamos al usuario la fecha que desea buscar
+    desc = Label(ventanaEdicion, text="Ingrese la fecha del entrenamiento que desea editar: ",
+                 bg="purple", fg="white", width=50,
+                 wraplength=750, font=("Arial", 20))
+
+    desc.pack(side="top", pady=10)
     entradaFecha.pack(side="top", pady=5)
 
     # Estilizamos la tabla
