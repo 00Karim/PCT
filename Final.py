@@ -77,6 +77,7 @@ def buscar_por_fecha(fecha):  # esta funcion sirve para simplificar la funcion d
         for sesion in atleta["sesiones"]:
             if sesion[0] == fecha:
                 lista_atletas.append(atleta)  # agregamos al atleta que tiene esa fecha en sus entrenamientos
+                break
     return (lista_atletas)# devuelve todos los atletas que tienen alguna sesion con la fecha ingresada
 
 
@@ -254,7 +255,7 @@ def validar_fecha(fecha):
 
 def validar_numero_positivo(num):
     try:
-        num = int(num) #Intentamos convertir el numero ingresado a entero
+        num = float(num) #Intentamos convertir el numero ingresado a float
         if num >= 0: #Compruebo que sea mayor o igual a 0
             return True
         else:
@@ -317,7 +318,6 @@ def ventanaExitoError(mensaje, ventana):
 
 # Funcion para abrir la ventana de registro nuevo atleta
 def abrirVentanaRegistro():
-    #principal.withdraw()
     ventanaRegistro = Toplevel(principal)
     configEstiloVentanas(ventanaRegistro, "500x300" , "Registro de nuevo atleta")
     contenedor = Frame(ventanaRegistro, bg="purple") #Definimos el contenedor para que entry y boton queden en linea
